@@ -1673,3 +1673,8 @@ button { cursor: pointer; }
   html { scroll-behavior: auto; }
   *, *::before, *::after { transition-duration: .01ms !important; }
 }
+
+/* Ловушка для ботов: за пределами экрана, недоступна с клавиатуры */
+.hp { position: absolute; left: -10000px; width: 1px; height: 1px; overflow: hidden; }
+.form__status { flex-basis: 100%; font-size: 15px; font-weight: 600; color: #b42318; }
+.form__submit .btn[disabled] { opacity: .6; cursor: progress; }

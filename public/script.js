@@ -768,28 +768,75 @@
     return errors;
   }
 
-  form.addEventListener('submit', (e) => {
+  const formStatus = $('#form-status');
+  const submitBtn = $('button[type="submit"]', form);
+  // Ключи ошибок сервера → поля формы
+  const SERVER_FIELDS = { name: 'name', phone: 'phone', carId: 'car', dateFrom: 'from', dateTo: 'to', address: 'address', comment: 'comment' };
+  const CALL_US = 'Позвоните нам: +7 495 000-00-00.';
+
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
     $$('[aria-invalid]', form).forEach(clearError);
+    formStatus.hidden = true;
     const errors = validate();
     if (errors.length) {
       errors.forEach(([input, message]) => setError(input, message));
       errors[0][0].focus();
       return;
     }
-    // Здесь заявка уходит на сервер или в CRM: подключите свой endpoint.
-    // fetch('/api/request', { method: 'POST', body: new FormData(form) });
-    const car = byId(carSelect.value);
-    $('#success-text').textContent =
-      `${car.name}, ${formatRange(state.from, state.to)}. Перезвоним на ${form.elements.phone.value} в течение 15 минут и подтвердим бронь.`;
-    form.hidden = true;
-    const success = $('#form-success');
-    success.hidden = false;
-    success.focus();
+
+    const f = form.elements;
+    const payload = {
+      name: f.name.value, phone: f.phone.value, carId: f.car.value,
+      dateFrom: f.from.value, dateTo: f.to.value, delivery: f.delivery.value,
+      address: f.address.value, comment: f.comment.value, website: f.website.value,
+    };
+    const label = submitBtn.textContent;
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Отправляем…';
+
+    try {
+      const res = await fetch('/api/requests', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (res.ok) {
+        const car = byId(carSelect.value);
+        $('#success-title').textContent = data.id ? `Заявка №${data.id} отправлена.` : 'Заявка отправлена.';
+        $('#success-text').textContent =
+          `${car.name}, ${formatRange(state.from, state.to)}. Перезвоним на ${f.phone.value} в течение 15 минут и подтвердим бронь.`;
+        form.hidden = true;
+        const success = $('#form-success');
+        success.hidden = false;
+        success.focus();
+        return;
+      }
+      if (res.status === 400 && data.errors) {
+        const fields = Object.entries(data.errors)
+          .map(([key, message]) => [f[SERVER_FIELDS[key]], message])
+          .filter(([input]) => input);
+        fields.forEach(([input, message]) => setError(input, message));
+        if (fields.length) { fields[0][0].focus(); return; }
+      }
+      formStatus.textContent = res.status === 429
+        ? `Слишком много заявок подряд. ${CALL_US}`
+        : `Не получилось отправить заявку. ${CALL_US}`;
+      formStatus.hidden = false;
+    } catch {
+      formStatus.textContent = `Нет связи с сервером. Проверьте интернет или ${CALL_US.toLowerCase()}`;
+      formStatus.hidden = false;
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.textContent = label;
+    }
   });
 
   $('#form-reset').addEventListener('click', () => {
     form.reset();
+    formStatus.hidden = true;
+    $('#success-title').textContent = 'Заявка отправлена.';
     state.from = '';
     state.to = '';
     syncDates();

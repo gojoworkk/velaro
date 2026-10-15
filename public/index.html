@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preconnect" href="https://images.unsplash.com">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@125,800..900&family=Inter:opsz,wght@14..32,300..700&family=JetBrains+Mono:wght@400;500;700&display=swap">
-  <link rel="stylesheet" href="styles.css?v=54">
+  <link rel="stylesheet" href="styles.css?v=55">
 </head>
 <body>
   <a class="skip-link" href="#main">Перейти к содержанию</a>
@@ -379,6 +379,10 @@
         <div class="request">
           <div class="request__main">
             <form class="form" id="request-form" novalidate>
+              <!-- Ловушка для ботов: людям не видна, боты заполняют -->
+              <div class="hp" aria-hidden="true">
+                <label>Не заполняйте это поле <input type="text" name="website" tabindex="-1" autocomplete="off"></label>
+              </div>
               <div class="form__grid">
                 <div class="field">
                   <label for="f-name">Имя</label>
@@ -427,11 +431,12 @@
               <div class="form__submit">
                 <button class="btn btn--primary btn--lg" type="submit">Отправить заявку</button>
                 <p class="caption">Нажимая кнопку, вы соглашаетесь на обработку персональных данных.</p>
+                <p class="form__status" id="form-status" role="alert" hidden></p>
               </div>
             </form>
 
             <div class="form-success" id="form-success" hidden tabindex="-1">
-              <h3 class="h3">Заявка отправлена.</h3>
+              <h3 class="h3" id="success-title">Заявка отправлена.</h3>
               <p class="lead" id="success-text"></p>
               <button class="btn btn--outline" type="button" id="form-reset">Отправить ещё одну заявку</button>
             </div>
@@ -482,6 +487,6 @@
   </footer>
 
   <script src="https://unpkg.com/lenis@1.1.13/dist/lenis.min.js"></script>
-  <script src="script.js?v=54"></script>
+  <script src="script.js?v=55"></script>
 </body>
 </html>

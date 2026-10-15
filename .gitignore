@@ -23,3 +23,5 @@ design/source.html
 
 # Сторонние материалы дизайна — не публикуем
 design/
+tsconfig.tsbuildinfo
+next-env.d.ts
