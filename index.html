@@ -1,0 +1,487 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Velaro — аренда премиальных автомобилей в Москве</title>
+  <meta name="description" content="Аренда Porsche, Ferrari, Mercedes-AMG, Lamborghini и Bentley без водителя в Москве. Доставка за два часа, КАСКО в стоимости.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='9.6' fill='%23141414'/%3E%3Ctext x='16' y='22.5' text-anchor='middle' font-family='Arial Black,Arial,sans-serif' font-weight='900' font-size='18' fill='%23fff'%3Ep%3C/text%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://images.unsplash.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@125,800..900&family=Inter:opsz,wght@14..32,300..700&family=JetBrains+Mono:wght@400;500;700&display=swap">
+  <link rel="stylesheet" href="styles.css?v=54">
+</head>
+<body>
+  <a class="skip-link" href="#main">Перейти к содержанию</a>
+
+  <header class="nav-wrap">
+    <nav class="nav" aria-label="Основная навигация">
+      <button class="nav__toggle" type="button" aria-expanded="false" aria-controls="nav-links">Меню</button>
+      <ul class="nav__links" id="nav-links">
+        <li><a href="#fleet">Автопарк</a></li>
+        <li><a href="#how">Как это работает</a></li>
+        <li><a href="#terms">Цены</a></li>
+        <li><a href="#reviews">Отзывы</a></li>
+      </ul>
+      <a class="wordmark" href="#top" aria-label="Velaro, на главную">Velaro</a>
+      <a class="nav__cta" href="#request">
+        <span><span class="nav__cta-label">Забронировать от 40 000 ₽</span><span class="nav__cta-short" aria-hidden="true">Бронь</span></span>
+        <svg width="8" height="12" viewBox="0 0 8 12" aria-hidden="true"><path d="M1.5 1.5 6 6l-4.5 4.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+    </nav>
+  </header>
+
+  <main id="main">
+    <!-- Первый экран: тёмная витрина, машина стоит в кольце подиума -->
+    <section class="showcase" id="top" aria-roledescription="карусель" aria-label="Автомобили на витрине">
+      <!-- Градиенты подиума -->
+      <svg class="svg-defs" aria-hidden="true" focusable="false">
+        <defs>
+          <linearGradient id="lg-ring-front" x1="0" x2="1">
+            <stop offset="0" stop-color="#fff" stop-opacity="0"/>
+            <stop offset=".22" stop-color="#fff" stop-opacity=".4"/>
+            <stop offset=".5" stop-color="#fff" stop-opacity=".95"/>
+            <stop offset=".78" stop-color="#fff" stop-opacity=".4"/>
+            <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+          </linearGradient>
+          <linearGradient id="lg-ring-back" x1="0" x2="1">
+            <stop offset="0" stop-color="#fff" stop-opacity="0"/>
+            <stop offset=".5" stop-color="#fff" stop-opacity=".3"/>
+            <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+          </linearGradient>
+          <radialGradient id="lg-floor">
+            <stop offset="0" stop-color="#fff" stop-opacity=".13"/>
+            <stop offset=".6" stop-color="#fff" stop-opacity=".04"/>
+            <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+          </radialGradient>
+        </defs>
+      </svg>
+
+      <div class="container showcase__inner">
+        <h1 class="visually-hidden">Velaro — аренда премиальных автомобилей в Москве</h1>
+
+        <div class="showcase__head">
+          <p class="showcase__title"><span class="showcase__brand" data-show="brand">Porsche</span> <span data-show="model">911 GT3 RS</span></p>
+          <p class="showcase__tagline" data-show="tagline">500 л.с. и 3,3 с до сотни. В аренду от 95 000 ₽ в сутки.</p>
+          <div class="showcase__actions">
+            <button class="btn btn--light" type="button" data-book="gt3rs" data-show="book">Забронировать</button>
+            <a class="btn btn--ghost" href="#fleet">Весь автопарк</a>
+          </div>
+        </div>
+
+        <div class="stage" id="stage">
+          <svg class="stage__ring stage__ring--back" viewBox="0 0 1000 465" aria-hidden="true">
+            <ellipse cx="500" cy="404" rx="470" ry="44" fill="url(#lg-floor)"/>
+          </svg>
+
+          <div class="stage__slides" id="cars" aria-live="polite"></div>
+
+          <svg class="stage__ring stage__ring--front" viewBox="0 0 1000 465" aria-hidden="true">
+            <path d="M70 400A430 26 0 0 0 930 400" fill="none" stroke="url(#lg-ring-front)" stroke-width="1.5"/>
+          </svg>
+
+          <button class="stage__arrow stage__arrow--prev" type="button" data-step="1" aria-label="Следующий автомобиль: машина уезжает вперёд">
+            <svg width="28" height="20" viewBox="0 0 28 20" aria-hidden="true"><path d="M25 10H3m5-5-5 5 5 5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <button class="stage__arrow stage__arrow--next" type="button" data-step="-1" aria-label="Прошлый автомобиль: машина сдаёт назад">
+            <svg width="28" height="20" viewBox="0 0 28 20" aria-hidden="true"><path d="M3 10h22m-5-5 5 5-5 5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+        </div>
+
+        <div class="showcase__foot">
+          <ul class="showcase__list" aria-label="Выбор автомобиля на витрине">
+            <li><button type="button" data-goto="0">Mercedes-AMG G 63</button></li>
+            <li><button type="button" data-goto="1" aria-current="true">Porsche 911 GT3 RS</button></li>
+            <li><button type="button" data-goto="2">Lamborghini Urus</button></li>
+            <li><button type="button" data-goto="3">Ferrari Roma</button></li>
+            <li><button type="button" data-goto="4">Lamborghini Huracán EVO</button></li>
+          </ul>
+          <div class="showcase__thumbs">
+            <button class="thumb" type="button" data-goto="2" data-show="thumb" aria-label="Показать Lamborghini Urus">
+              <img src="" alt="">
+            </button>
+            <a class="thumb thumb--more" href="#fleet" data-show="more" aria-label="Ещё 6 автомобилей в автопарке">+6</a>
+          </div>
+        </div>
+
+        <!-- Быстрый подбор -->
+        <form class="booking" id="booking" aria-label="Быстрый подбор автомобиля">
+          <label class="booking__field">
+            <span class="booking__label">Получение</span>
+            <input type="date" name="from" data-date="from">
+          </label>
+          <label class="booking__field">
+            <span class="booking__label">Возврат</span>
+            <input type="date" name="to" data-date="to">
+          </label>
+          <label class="booking__field">
+            <span class="booking__label">Класс</span>
+            <select name="cls">
+              <option value="all">Любой</option>
+              <option value="sport">Спорт</option>
+              <option value="suv">Внедорожники</option>
+              <option value="business">Бизнес</option>
+            </select>
+          </label>
+          <button class="btn btn--light" type="submit">Показать автомобили</button>
+        </form>
+      </div>
+    </section>
+
+    <!-- Каталог -->
+    <section class="section" id="fleet" aria-labelledby="fleet-title">
+      <div class="container">
+        <div class="section-head">
+          <h2 class="h2 h2--display" id="fleet-title">Автопарк</h2>
+          <p class="lead">Девять автомобилей, каждому не больше трёх лет. Все обслуживаются у официальных дилеров и проходят мойку перед каждой подачей.</p>
+        </div>
+
+        <!-- Изогнутая лента: карточки загибаются по краям, ровные в центре, справа гаснут -->
+        <!-- Блок шире контейнера; стрелки — снаружи, на белом фоне -->
+        <div class="fleet-stage">
+        <button class="stage__arrow fleet-arrow fleet-arrow--prev" type="button" data-fleet-step="-1" aria-label="Предыдущие автомобили" aria-controls="fleet-track">
+          <svg width="28" height="20" viewBox="0 0 28 20" aria-hidden="true"><path d="M25 10H3m5-5-5 5 5 5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <div class="fleet-panel">
+          <div class="fleet-bar">
+            <div class="segmented segmented--dark" role="group" aria-label="Класс автомобиля" data-filter-group>
+              <button type="button" aria-pressed="true" data-filter="all">Все</button>
+              <button type="button" aria-pressed="false" data-filter="sport">Спорт</button>
+              <button type="button" aria-pressed="false" data-filter="suv">Внедорожники</button>
+              <button type="button" aria-pressed="false" data-filter="business">Бизнес</button>
+            </div>
+            <p class="fleet-bar__note" id="fleet-note" aria-live="polite">Цена за сутки при аренде на 1–2 дня</p>
+          </div>
+
+          <div class="fleet-carousel">
+            <div class="fleet-track" id="fleet-track" tabindex="0" aria-label="Автомобили, листайте влево и вправо">
+              <ul class="fleet" id="fleet-list"></ul>
+            </div>
+          </div>
+        </div>
+        <button class="stage__arrow fleet-arrow fleet-arrow--next" type="button" data-fleet-step="1" aria-label="Следующие автомобили" aria-controls="fleet-track">
+          <svg width="28" height="20" viewBox="0 0 28 20" aria-hidden="true"><path d="M3 10h22m-5-5 5 5-5 5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Как работает аренда -->
+    <section class="section" id="how" aria-labelledby="how-title">
+      <div class="container">
+        <div class="section-head">
+          <h2 class="h2 h2--display" id="how-title">Как проходит аренда</h2>
+          <p class="lead">От заявки до ключей в руках — около двух часов. Предоплата не нужна, договор пришлём заранее.</p>
+        </div>
+
+        <!-- Лесенка: от заявки к возврату, каждый шаг выше предыдущего -->
+        <div class="journey" id="journey">
+          <ol class="journey__steps">
+            <li class="jstep" style="--i:0">
+              <div class="jstep__head">
+                <h3 class="jstep__title">Заявка</h3>
+                <p class="jstep__text">Имя, телефон и даты — на сайте или по телефону</p>
+              </div>
+              <span class="jstep__stem" aria-hidden="true"></span>
+              <p class="jstep__pill"><span>Сейчас</span><span class="jstep__icon" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5.5 2.5h2l1 3-1.5 1a8 8 0 0 0 3.5 3.5l1-1.5 3 1v2a1.5 1.5 0 0 1-1.5 1.5A11 11 0 0 1 2 4a1.5 1.5 0 0 1 1.5-1.5z"/></svg></span></p>
+            </li>
+            <li class="jstep" style="--i:1">
+              <div class="jstep__head">
+                <h3 class="jstep__title">Подтверждение</h3>
+                <p class="jstep__text">Перезвоним, проверим документы, пришлём договор</p>
+              </div>
+              <span class="jstep__stem" aria-hidden="true"></span>
+              <p class="jstep__pill"><span>15 минут</span><span class="jstep__icon" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 2.5h6l3 3V14a.5.5 0 0 1-.5.5h-8.5A.5.5 0 0 1 3.5 14V3a.5.5 0 0 1 .5-.5z"/><path d="M6 9.5l1.5 1.5L10.5 8"/></svg></span></p>
+            </li>
+            <li class="jstep" style="--i:2">
+              <div class="jstep__head">
+                <h3 class="jstep__title">Подача</h3>
+                <p class="jstep__text">Привезём домой, в офис или в аэропорт</p>
+              </div>
+              <span class="jstep__stem" aria-hidden="true"></span>
+              <p class="jstep__pill"><span>2 часа</span><span class="jstep__icon" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="5.5" cy="10.5" r="3"/><path d="M7.7 8.3 13.5 2.5m-2 2 1.5 1.5m-3.5.5 1.5 1.5"/></svg></span></p>
+            </li>
+            <li class="jstep" style="--i:3">
+              <div class="jstep__head">
+                <h3 class="jstep__title">Возврат</h3>
+                <p class="jstep__text">Заберём машину, депозит вернём через 14 дней</p>
+              </div>
+              <span class="jstep__stem" aria-hidden="true"></span>
+              <p class="jstep__pill"><span>В конце</span><span class="jstep__icon" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4 3 7l3 3"/><path d="M3 7h6.5a3.5 3.5 0 0 1 0 7H7"/></svg></span></p>
+            </li>
+          </ol>
+        </div>
+      </div>
+    </section>
+
+    <!-- Условия и цены -->
+    <section class="section" id="terms" aria-labelledby="terms-title">
+      <div class="container">
+        <div class="section-head">
+          <h2 class="h2 h2--display" id="terms-title">Условия и цены</h2>
+          <p class="lead">Чем дольше аренда, тем дешевле сутки. КАСКО, ОСАГО, 300 км в день и доставка по Москве входят в стоимость.</p>
+        </div>
+
+        <!-- Карточки классов: цена за сутки пересчитывается по сроку аренды -->
+        <div class="plans" id="plans">
+          <div class="plans__switch">
+            <div class="segmented segmented--dark" role="group" aria-label="Срок аренды" data-term-group>
+              <button type="button" aria-pressed="true" data-term="1">1–2 суток</button>
+              <button type="button" aria-pressed="false" data-term="3">3–6 суток <span class="plans__save">−10%</span></button>
+              <button type="button" aria-pressed="false" data-term="7">7–13 суток <span class="plans__save">−20%</span></button>
+              <button type="button" aria-pressed="false" data-term="14">От 14 суток <span class="plans__save">−30%</span></button>
+            </div>
+          </div>
+          <div class="plans__grid" id="plans-grid"></div>
+          <p class="plans__note">Цена за сутки самого доступного автомобиля в классе. Скидка за срок считается автоматически.</p>
+        </div>
+
+        <div class="terms-grid">
+          <div class="terms-lists">
+            <div class="terms-list">
+              <h3 class="h4">Требования к водителю</h3>
+              <ul class="checklist">
+                <li>Возраст от 23 лет и стаж от 3 лет</li>
+                <li>Для спорткаров — от 25 лет и стаж от 5 лет</li>
+                <li>Паспорт и водительское удостоверение категории B</li>
+                <li>Депозит от 100 000 ₽, возвращаем полностью</li>
+              </ul>
+            </div>
+            <div class="terms-list">
+              <h3 class="h4">Входит в стоимость</h3>
+              <ul class="checklist">
+                <li>КАСКО с франшизой 30 000 ₽ и ОСАГО</li>
+                <li>300 км в сутки, сверх лимита — 30 ₽ за км</li>
+                <li>Подача и возврат в пределах МКАД</li>
+                <li>Чистая машина с полным баком</li>
+                <li>Поддержка 24/7 и эвакуатор при поломке</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="faq">
+            <h3 class="h4">Частые вопросы</h3>
+            <details class="faq-row">
+              <summary>Можно выехать за пределы Москвы?</summary>
+              <p>По Московской области — без ограничений. Поездку в другие регионы согласуем заранее: напишите маршрут в комментарии к заявке.</p>
+            </details>
+            <details class="faq-row">
+              <summary>Что будет, если я попаду в ДТП?</summary>
+              <p>Позвоните нам и в ГИБДД, мы подскажем порядок действий. Если виноваты не вы, ничего не платите. Если вы — ремонт покрывает КАСКО, с вас только франшиза 30 000 ₽.</p>
+            </details>
+            <details class="faq-row">
+              <summary>Когда вернётся депозит?</summary>
+              <p>Через 14 дней после окончания аренды — столько времени идут штрафы с камер. Если штрафов нет, возвращаем всю сумму на ту же карту.</p>
+            </details>
+            <details class="faq-row">
+              <summary>Можно продлить аренду?</summary>
+              <p>Да, сообщите нам минимум за 6 часов до конца срока. Цена пересчитается по тарифу за общий срок, так что продление может оказаться выгоднее.</p>
+            </details>
+            <details class="faq-row">
+              <summary>Может ли за руль сесть второй водитель?</summary>
+              <p>Да, впишем его в договор бесплатно. Требования к возрасту и стажу те же, что и для основного водителя.</p>
+            </details>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Отзывы -->
+    <section class="section" id="reviews" aria-labelledby="reviews-title">
+      <div class="container">
+        <div class="section-head">
+          <h2 class="h2" id="reviews-title">Отзывы</h2>
+          <p class="lead">Что пишут клиенты после аренды.</p>
+        </div>
+
+        <!-- Лента: колонки едут вверх и вниз, при наведении встают. Сами отзывы — в скрытом списке для скринридеров -->
+        <div class="testimonials" id="testimonials">
+          <div class="testimonials__plane" aria-hidden="true"></div>
+        </div>
+        <div class="reviews visually-hidden">
+          <figure class="review">
+            <blockquote>Брал GT3 RS на выходные на день рождения. Машину привезли к подъезду в девять утра, как договаривались, чистую и с полным баком. Депозит вернули через две недели без вопросов.</blockquote>
+            <figcaption class="review__author">
+              <span class="avatar" aria-hidden="true">АК</span>
+              <span><span class="review__name">Артём Ковалёв</span><span class="review__car">Porsche 911 GT3 RS, 2 дня</span></span>
+            </figcaption>
+          </figure>
+          <figure class="review">
+            <blockquote>Арендовали S-класс на свадьбу. Менеджер сам предложил вписать второго водителя бесплатно — очень выручило.</blockquote>
+            <figcaption class="review__author">
+              <span class="avatar" aria-hidden="true">МЛ</span>
+              <span><span class="review__name">Марина Лебедева</span><span class="review__car">Mercedes-AMG S 63, 3 дня</span></span>
+            </figcaption>
+          </figure>
+          <figure class="review">
+            <blockquote>Нужен был G-Class для съёмки клипа. Согласовали всё за вечер, утром машина уже стояла на площадке. Никаких доплат сверх договора.</blockquote>
+            <figcaption class="review__author">
+              <span class="avatar" aria-hidden="true">ДО</span>
+              <span><span class="review__name">Дмитрий Орлов</span><span class="review__car">Mercedes-AMG G 63, 1 день</span></span>
+            </figcaption>
+          </figure>
+          <figure class="review">
+            <blockquote>Брала Range Rover на неделю, пока моя машина была в сервисе. Недельный тариф оказался заметно выгоднее посуточного, а подачу сделали прямо к офису.</blockquote>
+            <figcaption class="review__author">
+              <span class="avatar" aria-hidden="true">ЕС</span>
+              <span><span class="review__name">Елена Соколова</span><span class="review__car">Range Rover, 7 дней</span></span>
+            </figcaption>
+          </figure>
+          <figure class="review">
+            <blockquote>По телефону спокойно объяснили все условия, договор прислали заранее, так что на подаче ничего не пришлось читать впопыхах. Машина в идеальном состоянии.</blockquote>
+            <figcaption class="review__author">
+              <span class="avatar" aria-hidden="true">ИВ</span>
+              <span><span class="review__name">Игорь Васильев</span><span class="review__car">Lamborghini Urus, 4 дня</span></span>
+            </figcaption>
+          </figure>
+          <figure class="review">
+            <blockquote>Подарок мужу на годовщину. Bentley подали к ресторану минута в минуту.</blockquote>
+            <figcaption class="review__author">
+              <span class="avatar" aria-hidden="true">НП</span>
+              <span><span class="review__name">Наталья Полякова</span><span class="review__car">Bentley Continental GT, 1 день</span></span>
+            </figcaption>
+          </figure>
+
+          <figure class="review">
+            <blockquote>Брали Ferrari Roma на выходные за город. Машина как новая, менеджер на связи всё время.</blockquote>
+            <figcaption class="review__author">
+              <span class="avatar" aria-hidden="true">СМ</span>
+              <span><span class="review__name">Сергей Морозов</span><span class="review__car">Ferrari Roma, 2 дня</span></span>
+            </figcaption>
+          </figure>
+          <figure class="review">
+            <blockquote>Взял M5 для командировки по области. Подача в аэропорт, возврат там же — очень удобно.</blockquote>
+            <figcaption class="review__author">
+              <span class="avatar" aria-hidden="true">ПК</span>
+              <span><span class="review__name">Павел Кузнецов</span><span class="review__car">BMW M5 Competition, 5 дней</span></span>
+            </figcaption>
+          </figure>
+          <figure class="review">
+            <blockquote>Второй раз арендую Huracán. Всё так же чётко: договор заранее, депозит вернули вовремя.</blockquote>
+            <figcaption class="review__author">
+              <span class="avatar" aria-hidden="true">АБ</span>
+              <span><span class="review__name">Алина Белова</span><span class="review__car">Lamborghini Huracán EVO, 1 день</span></span>
+            </figcaption>
+          </figure>
+        </div>
+      </div>
+    </section>
+
+    <!-- Форма заявки -->
+    <section class="section" id="request" aria-labelledby="request-title">
+      <div class="container">
+        <div class="section-head">
+          <h2 class="h2" id="request-title">Заявка на аренду</h2>
+          <p class="lead">Оставьте телефон — перезвоним в течение 15 минут с 8:00 до 23:00 и подтвердим бронь.</p>
+        </div>
+
+        <div class="request">
+          <div class="request__main">
+            <form class="form" id="request-form" novalidate>
+              <div class="form__grid">
+                <div class="field">
+                  <label for="f-name">Имя</label>
+                  <input id="f-name" name="name" type="text" autocomplete="name" required aria-describedby="f-name-err">
+                  <p class="field__error" id="f-name-err"></p>
+                </div>
+                <div class="field">
+                  <label for="f-phone">Телефон</label>
+                  <input id="f-phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="+7 (999) 000-00-00" required aria-describedby="f-phone-err">
+                  <p class="field__error" id="f-phone-err"></p>
+                </div>
+                <div class="field field--wide">
+                  <label for="f-car">Автомобиль</label>
+                  <select id="f-car" name="car" required aria-describedby="f-car-err">
+                    <option value="">Выберите автомобиль</option>
+                  </select>
+                  <p class="field__error" id="f-car-err"></p>
+                </div>
+                <div class="field">
+                  <label for="f-from">Получение</label>
+                  <input id="f-from" name="from" type="date" required data-date="from" aria-describedby="f-from-err">
+                  <p class="field__error" id="f-from-err"></p>
+                </div>
+                <div class="field">
+                  <label for="f-to">Возврат</label>
+                  <input id="f-to" name="to" type="date" required data-date="to" aria-describedby="f-to-err">
+                  <p class="field__error" id="f-to-err"></p>
+                </div>
+                <fieldset class="field field--wide">
+                  <legend>Как получить автомобиль</legend>
+                  <div class="segmented segmented--radio">
+                    <label><input type="radio" name="delivery" value="delivery" checked><span>Доставка</span></label>
+                    <label><input type="radio" name="delivery" value="pickup"><span>Самовывоз с Пресненской набережной</span></label>
+                  </div>
+                </fieldset>
+                <div class="field field--wide" id="address-field">
+                  <label for="f-address">Адрес доставки</label>
+                  <input id="f-address" name="address" type="text" autocomplete="street-address" placeholder="Улица, дом" aria-describedby="f-address-err">
+                  <p class="field__error" id="f-address-err"></p>
+                </div>
+                <div class="field field--wide">
+                  <label for="f-comment">Комментарий <span class="field__hint">необязательно</span></label>
+                  <textarea id="f-comment" name="comment" rows="3" placeholder="Например, нужно детское кресло или поездка в Петербург"></textarea>
+                </div>
+              </div>
+              <div class="form__submit">
+                <button class="btn btn--primary btn--lg" type="submit">Отправить заявку</button>
+                <p class="caption">Нажимая кнопку, вы соглашаетесь на обработку персональных данных.</p>
+              </div>
+            </form>
+
+            <div class="form-success" id="form-success" hidden tabindex="-1">
+              <h3 class="h3">Заявка отправлена.</h3>
+              <p class="lead" id="success-text"></p>
+              <button class="btn btn--outline" type="button" id="form-reset">Отправить ещё одну заявку</button>
+            </div>
+          </div>
+
+          <aside class="summary" id="summary" aria-live="polite" aria-label="Расчёт стоимости"></aside>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container footer__inner">
+      <div class="footer__cols">
+        <p class="footer__lead">Аренда премиальных автомобилей без водителя в Москве и области.</p>
+        <div>
+          <h3 class="footer__title">Контакты</h3>
+          <ul class="footer__list">
+            <li><a href="tel:+74950000000">+7 495 000-00-00</a></li>
+            <li>Ежедневно с 8:00 до 23:00</li>
+            <li>Москва, Пресненская набережная, 12</li>
+          </ul>
+        </div>
+        <div>
+          <h3 class="footer__title">Разделы</h3>
+          <ul class="footer__list">
+            <li><a href="#fleet">Автопарк</a></li>
+            <li><a href="#how">Как это работает</a></li>
+            <li><a href="#terms">Условия и цены</a></li>
+            <li><a href="#reviews">Отзывы</a></li>
+          </ul>
+        </div>
+        <div>
+          <h3 class="footer__title">Написать</h3>
+          <ul class="footer__list">
+            <li><a href="#">Telegram</a></li>
+            <li><a href="#">WhatsApp</a></li>
+            <li><a href="mailto:hello@velaro.example">hello@velaro.example</a></li>
+          </ul>
+        </div>
+      </div>
+      <p class="footer__mark" aria-hidden="true">Velaro</p>
+      <div class="footer__legal">
+        <span>© 2026 Velaro</span>
+        <a href="#">Политика конфиденциальности</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="https://unpkg.com/lenis@1.1.13/dist/lenis.min.js"></script>
+  <script src="script.js?v=54"></script>
+</body>
+</html>
