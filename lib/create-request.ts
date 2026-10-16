@@ -4,13 +4,15 @@ import type { AppDb } from '@/db/types';
 import { validateRequest } from './validation';
 import { quote } from './pricing';
 import { hashIp, checkRateLimit } from './rate-limit';
-import { formatRequestMessage } from './telegram';
+import { adminUrl, formatRequestMessage } from './telegram';
 
 export type CreateDeps = {
   ip: string;
   now: Date;
   salt: string;
   notify: (text: string) => Promise<boolean>;
+  /** Адрес сайта для ссылки на карточку в админке */
+  siteUrl?: string;
 };
 
 export type CreateResult =
@@ -42,7 +44,9 @@ export async function createRequest(db: AppDb, body: unknown, deps: CreateDeps):
 
   let sent = false;
   try {
-    sent = await deps.notify(formatRequestMessage({ id: row.id, carName: car.name, ...input, ...price, deposit: car.deposit }));
+    sent = await deps.notify(
+      formatRequestMessage({ id: row.id, carName: car.name, ...input, ...price, deposit: car.deposit }, adminUrl(deps.siteUrl, row.id)),
+    );
   } catch {
     sent = false;
   }

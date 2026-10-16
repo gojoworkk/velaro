@@ -22,6 +22,7 @@ export async function POST(req: Request) {
       now: new Date(),
       salt: process.env.IP_HASH_SALT ?? 'local-dev-salt',
       notify: (text) => sendTelegram(text),
+      siteUrl: process.env.SITE_URL,
     });
     if (result.status === 429) return NextResponse.json({ error: 'rate_limited' }, { status: 429 });
     if (result.status === 400) return NextResponse.json({ errors: result.errors }, { status: 400 });

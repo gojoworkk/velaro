@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { formatRequestMessage, sendTelegram, type RequestSummary } from '@/lib/telegram';
+import { adminUrl, formatRequestMessage, sendTelegram, type RequestSummary } from '@/lib/telegram';
 
 const base: RequestSummary = {
   id: 17, carName: 'Lamborghini Huracán EVO', dateFrom: '2026-10-20', dateTo: '2026-10-27',
@@ -53,5 +53,20 @@ describe('sendTelegram', () => {
   it('ответ не ok — false', async () => {
     const fetchImpl = vi.fn().mockResolvedValue(new Response('{"ok":false}', { status: 400 }));
     expect(await sendTelegram('t', { token: 'T', chatId: '1', fetchImpl })).toBe(false);
+  });
+});
+
+describe('ссылка на админку', () => {
+  it('adminUrl убирает слэш в конце и без SITE_URL даёт undefined', () => {
+    expect(adminUrl('https://velaro-three.vercel.app/', 7)).toBe('https://velaro-three.vercel.app/admin/requests/7');
+    expect(adminUrl(undefined, 7)).toBeUndefined();
+    expect(adminUrl('', 7)).toBeUndefined();
+  });
+  it('ссылка добавляется последней строкой', () => {
+    const t = formatRequestMessage(base, 'https://x.ru/admin/requests/17');
+    expect(t.split('\n').at(-1)).toBe('<a href="https://x.ru/admin/requests/17">Открыть в админке</a>');
+  });
+  it('без ссылки — как раньше', () => {
+    expect(formatRequestMessage(base)).not.toContain('админке');
   });
 });

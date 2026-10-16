@@ -56,6 +56,12 @@ describe('createRequest', () => {
     const [row] = await db.select().from(requests);
     expect(row.telegramSent).toBe(false);
   });
+  it('с siteUrl в уведомлении есть ссылка на карточку', async () => {
+    const db = await createTestDb();
+    const d = deps({ siteUrl: 'https://velaro.test' });
+    await createRequest(db, body, d);
+    expect(d.notify).toHaveBeenCalledWith(expect.stringContaining('href="https://velaro.test/admin/requests/1"'));
+  });
   it('notify бросает — заявка всё равно сохранена', async () => {
     const db = await createTestDb();
     const res = await createRequest(db, body, deps({ notify: vi.fn().mockRejectedValue(new Error('x')) }));
