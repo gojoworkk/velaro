@@ -10,7 +10,8 @@
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:seed": "tsx scripts/db-seed.ts",
-    "tg:chat-id": "tsx scripts/telegram-chat-id.ts"
+    "tg:chat-id": "tsx scripts/telegram-chat-id.ts",
+    "admin:create-owner": "tsx scripts/create-owner.ts"
   },
   "dependencies": {
     "drizzle-orm": "^0.45.4",
