@@ -35,9 +35,15 @@ function searchCondition(q?: string, car?: string): SQL | undefined {
   const text = q?.trim();
   if (text) {
     const byName = ilike(requests.name, `%${escapeLike(text)}%`);
-    let digits = text.replace(/\D/g, '');
-    if (digits.length === 11 && digits.startsWith('8')) digits = `7${digits.slice(1)}`;
-    conds.push(digits.length >= 3 ? (or(byName, like(requests.phone, `%${digits}%`)) as SQL) : byName);
+    const digits = text.replace(/\D/g, '');
+    if (digits.length >= 3) {
+      // Номера хранятся как +7XXXXXXXXXX; «8 903…» — это начало номера, ищем и как «+7903…»
+      const byPhone = [like(requests.phone, `%${digits}%`)];
+      if (digits.startsWith('8')) byPhone.push(like(requests.phone, `+7${digits.slice(1)}%`));
+      conds.push(or(byName, ...byPhone) as SQL);
+    } else {
+      conds.push(byName);
+    }
   }
   return conds.length ? and(...conds) : undefined;
 }

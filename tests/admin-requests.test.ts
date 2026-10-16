@@ -37,6 +37,9 @@ describe('listRequests', () => {
     expect((await listRequests(db, { status: 'all', q: 'смирн' })).rows).toHaveLength(1);
     expect((await listRequests(db, { status: 'all', q: '903 555' })).rows[0].name).toBe('Борис');
     expect((await listRequests(db, { status: 'all', q: '8 903 555 00 00' })).rows[0].name).toBe('Борис');
+    // начало номера с восьмёрки — как набирают в России
+    expect((await listRequests(db, { status: 'all', q: '8 903 555' })).rows[0]?.name).toBe('Борис');
+    expect((await listRequests(db, { status: 'all', q: '+7 903' })).rows[0]?.name).toBe('Борис');
     expect((await listRequests(db, { status: 'all', car: 'g63' })).rows).toHaveLength(1);
     expect((await listRequests(db, { status: 'all', q: '%' })).rows).toHaveLength(0);
   });
