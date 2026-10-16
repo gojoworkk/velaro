@@ -19,3 +19,15 @@ export const STATUS_TABS: Record<Status, string> = {
 };
 
 export const isStatus = (s: unknown): s is Status => typeof s === 'string' && (STATUSES as readonly string[]).includes(s);
+
+export type EventLike = { type: 'status' | 'assign' | 'note'; fromValue: string | null; toValue: string | null; authorName: string };
+
+const label = (s: string | null) => (s && isStatus(s) ? STATUS_LABELS[s] : (s ?? '—'));
+
+/** Строка истории: «Анна взял(а) в работу», «Анна: Новая → В работе» */
+export function describeEvent(e: EventLike, people: Record<string, string>): string {
+  if (e.type === 'status') return `${e.authorName}: ${label(e.fromValue)} → ${label(e.toValue)}`;
+  if (e.type === 'note') return `${e.authorName}, заметка`;
+  if (e.fromValue === null) return `${e.authorName} взял(а) в работу`;
+  return `${e.authorName} передал(а) заявку: ${people[e.toValue ?? ''] ?? 'сотрудник'}`;
+}
