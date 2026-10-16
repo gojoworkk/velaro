@@ -1,0 +1,151 @@
+/* Админка Velaro: те же токены, шрифты и пилюли, что у лендинга (public/styles.css) */
+:root {
+  --ink: #141414;
+  --ink-soft: #262626;
+  --muted: #707070;
+  --faint: #adadad;
+  --canvas: #ffffff;
+  --canvas-soft: #f3f3f3;
+  --field: #f0f0f0;
+  --hairline: #e0e0e0;
+  --hairline-soft: #f0f0f0;
+  --accent: #0066ff;
+  --on-primary: #ffffff;
+  --danger: #d92d20;
+  --success: #067647;
+  --r-sm: 16px;
+  --r-md: 24px;
+  --r-full: 9999px;
+  --font-sans: "Inter", -apple-system, "Helvetica Neue", Arial, sans-serif;
+  --font-wide: "Archivo", "Inter", -apple-system, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--canvas);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: 15px;
+  line-height: 1.45;
+  -webkit-font-smoothing: antialiased;
+}
+a { color: inherit; text-decoration: none; }
+button, input, select, textarea { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+
+/* ── Кнопки-пилюли ─────────────────────────── */
+.a-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  height: 40px; padding: 0 18px;
+  border: 1px solid transparent; border-radius: var(--r-full);
+  font-size: 14px; font-weight: 600; line-height: 1; white-space: nowrap;
+  cursor: pointer;
+  transition: background-color .2s ease, border-color .2s ease, color .2s ease;
+}
+.a-btn:disabled { opacity: .5; cursor: default; }
+.a-btn--lg { height: 52px; padding: 0 28px; font-size: 16px; }
+.a-btn--primary { background: var(--ink); color: var(--on-primary); }
+.a-btn--primary:hover { background: var(--ink-soft); }
+.a-btn--light { background: var(--on-primary); color: var(--ink); }
+.a-btn--light:hover { background: #e6e6e6; }
+.a-btn--outline { background: var(--canvas); color: var(--ink); border-color: var(--hairline); }
+.a-btn--outline:hover { border-color: var(--ink); }
+.a-btn--outline[aria-pressed="true"] { background: var(--ink); color: var(--on-primary); border-color: var(--ink); }
+.a-btn--danger { background: var(--canvas); color: var(--danger); border-color: var(--hairline); }
+.a-btn--danger:hover { border-color: var(--danger); }
+
+/* ── Бейджи ────────────────────────────────── */
+.a-badge {
+  display: inline-flex; align-items: center; height: 24px; padding: 0 10px;
+  border-radius: var(--r-full); background: var(--ink); color: var(--on-primary);
+  font-size: 12px; font-weight: 600; line-height: 1; white-space: nowrap;
+}
+.a-badge--soft { background: var(--canvas-soft); color: var(--muted); }
+.a-badge--warn { background: #fff1e6; color: #b54708; }
+
+/* ── Шапка как у лендинга ──────────────────── */
+.a-nav {
+  position: sticky; top: 0; z-index: 10;
+  display: flex; align-items: center; gap: 24px;
+  height: 64px; padding: 0 24px;
+  background: rgba(8, 8, 8, .92);
+  -webkit-backdrop-filter: blur(16px) saturate(140%);
+  backdrop-filter: blur(16px) saturate(140%);
+  color: var(--on-primary);
+  font-family: var(--font-mono); font-size: 12px; letter-spacing: .06em; text-transform: uppercase;
+}
+.a-nav__brand { font-size: 16px; letter-spacing: .8em; }
+.a-nav__links { display: flex; gap: 6px; }
+.a-nav__links a {
+  display: inline-flex; align-items: center; height: 36px; padding: 0 16px;
+  border-radius: var(--r-full); background: var(--on-primary); color: var(--ink);
+  font-family: var(--font-sans); font-size: 14px; font-weight: 600; letter-spacing: 0; text-transform: none;
+  transition: background-color .2s ease;
+}
+.a-nav__links a:hover { background: #e6e6e6; }
+.a-nav__user { margin-left: auto; display: flex; align-items: center; gap: 20px; }
+.a-nav__user form { display: contents; }
+.a-nav__name, .a-nav__logout { opacity: .7; transition: opacity .2s ease; }
+.a-nav__name:hover, .a-nav__logout:hover { opacity: 1; }
+.a-nav__logout {
+  padding: 0; border: 0; background: none; cursor: pointer;
+  color: var(--on-primary); font: inherit; letter-spacing: inherit; text-transform: inherit;
+}
+
+/* ── Страница ──────────────────────────────── */
+.a-main { max-width: 1280px; margin: 0 auto; padding: 40px 24px 80px; }
+.a-title {
+  margin: 0 0 24px;
+  font-family: var(--font-wide); font-stretch: 125%; font-weight: 800;
+  font-size: clamp(30px, 4.4vw, 52px); line-height: 1.05;
+}
+.a-subtitle {
+  margin: 0 0 16px;
+  font-family: var(--font-wide); font-stretch: 125%; font-weight: 800; font-size: 22px; line-height: 1.1;
+}
+.a-section { margin-top: 48px; }
+.a-back { display: inline-block; margin-bottom: 16px; color: var(--muted); font-size: 14px; }
+.a-back:hover { color: var(--ink); }
+.a-empty { padding: 48px 24px; text-align: center; color: var(--muted); }
+
+/* ── Формы ─────────────────────────────────── */
+.a-form { display: grid; gap: 16px; }
+.a-form--row { grid-template-columns: repeat(3, minmax(0, 1fr)) auto; align-items: end; }
+.a-field { display: grid; gap: 6px; font-size: 13px; font-weight: 600; color: var(--muted); }
+.a-field input, .a-field select, .a-field textarea {
+  width: 100%; height: 48px; padding: 0 18px;
+  border: 1px solid transparent; border-radius: var(--r-sm);
+  background: var(--field); color: var(--ink); font-size: 15px; font-weight: 400;
+}
+.a-field textarea { height: auto; min-height: 96px; padding: 14px 18px; resize: vertical; }
+.a-field input:focus, .a-field select:focus, .a-field textarea:focus { outline: none; border-color: var(--ink); background: var(--canvas); }
+.a-field__error { color: var(--danger); font-weight: 500; }
+.a-error { margin: 0; color: var(--danger); font-size: 14px; }
+.a-ok { margin: 0; color: var(--success); font-size: 14px; }
+.a-inline { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.a-inline select, .a-inline input {
+  height: 40px; padding: 0 16px; border: 1px solid var(--hairline); border-radius: var(--r-full); background: var(--canvas);
+}
+
+/* ── Вход: чёрный экран как первый экран сайта ─ */
+.a-login { min-height: 100vh; display: grid; place-items: center; padding: 24px; background: #000; color: var(--on-primary); }
+.a-login__box { width: 100%; max-width: 380px; display: grid; gap: 24px; }
+.a-wordmark { margin: 0; padding-left: .8em; font-family: var(--font-mono); font-size: 16px; letter-spacing: .8em; text-align: center; }
+.a-login__title { margin: 0; font-family: var(--font-wide); font-stretch: 125%; font-weight: 800; font-size: 28px; line-height: 1.1; text-align: center; }
+.a-login__hint { margin: 0; color: var(--faint); font-size: 14px; text-align: center; }
+.a-login .a-field { color: var(--faint); }
+.a-login .a-field input { background: rgba(255, 255, 255, .08); border-color: rgba(255, 255, 255, .12); color: var(--on-primary); }
+.a-login .a-field input:focus { background: rgba(255, 255, 255, .12); border-color: var(--on-primary); }
+.a-login .a-error, .a-login .a-field__error { color: #ff8a80; }
+.a-login__link { color: var(--faint); font-size: 14px; text-align: center; text-decoration: underline; text-underline-offset: 3px; }
+
+@media (max-width: 767px) {
+  .a-nav { gap: 12px; padding: 0 12px; }
+  .a-nav__brand { letter-spacing: .4em; font-size: 14px; }
+  .a-nav__links a { padding: 0 12px; font-size: 13px; }
+  .a-nav__name { display: none; }
+  .a-main { padding: 24px 16px 64px; }
+  .a-form--row { grid-template-columns: 1fr; }
+}
