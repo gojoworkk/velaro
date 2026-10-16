@@ -4,7 +4,7 @@ import { cookies, headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 import type { ActionState } from '@/lib/admin/action-state';
 import { addNote, assignRequest, resendTelegram, setStatus, takeRequest, type ActionResult } from '@/lib/admin/requests';
-import { changeOwnPassword } from '@/lib/admin/users';
+import { changeOwnPassword, createManager, resetPassword, setActive } from '@/lib/admin/users';
 import { sendTelegram } from '@/lib/telegram';
 import { SESSION_COOKIE, sessionCookieOptions } from '@/lib/auth/cookie';
 import { requireUser, sessionToken } from '@/lib/auth/current';
@@ -27,7 +27,8 @@ export async function loginAction(_prev: ActionState, fd: FormData): Promise<Act
   });
   if (!res.ok) return { error: LOGIN_ERRORS[res.error], values: { login: loginValue } };
   (await cookies()).set(SESSION_COOKIE, res.token, sessionCookieOptions());
-  redirect(res.user.mustChangePassword ? '/admin/password' : safeNext(fd.get('next')));
+  const next = safeNext(fd.get('next'));
+  redirect(res.user.mustChangePassword ? `/admin/password?next=${encodeURIComponent(next)}` : next);
 }
 
 export async function logoutAction(): Promise<void> {
@@ -41,7 +42,7 @@ export async function changePasswordAction(_prev: ActionState, fd: FormData): Pr
   const user = await requireUser(undefined, { allowMustChange: true });
   const res = await changeOwnPassword(getDb(), user.id, str(fd, 'password'), str(fd, 'confirm'), (await sessionToken()) ?? '');
   if (!res.ok) return { errors: res.errors };
-  redirect('/admin');
+  redirect(safeNext(fd.get('next')));
 }
 
 function afterRequestChange(id: number, res: ActionResult): ActionState {
@@ -75,4 +76,27 @@ export async function noteAction(id: number, _prev: ActionState, fd: FormData): 
 export async function resendAction(id: number, _prev: ActionState, _fd: FormData): Promise<ActionState> {
   await requireUser();
   return afterRequestChange(id, await resendTelegram(getDb(), id, (t) => sendTelegram(t), process.env.SITE_URL));
+}
+
+export async function createManagerAction(_prev: ActionState, fd: FormData): Promise<ActionState> {
+  const owner = await requireUser('owner');
+  const input = { login: str(fd, 'login'), name: str(fd, 'name'), password: str(fd, 'password') };
+  const res = await createManager(getDb(), owner, input);
+  revalidatePath('/admin/managers');
+  if (!res.ok) return { errors: res.errors, values: { login: input.login, name: input.name } };
+  return { ok: true };
+}
+
+export async function resetPasswordAction(userId: number, _prev: ActionState, fd: FormData): Promise<ActionState> {
+  const owner = await requireUser('owner');
+  const res = await resetPassword(getDb(), owner, userId, str(fd, 'password'));
+  revalidatePath('/admin/managers');
+  return res.ok ? { ok: true } : { error: Object.values(res.errors)[0] };
+}
+
+export async function setActiveAction(userId: number, active: boolean, _prev: ActionState, _fd: FormData): Promise<ActionState> {
+  const owner = await requireUser('owner');
+  const res = await setActive(getDb(), owner, userId, active);
+  revalidatePath('/admin/managers');
+  return res.ok ? { ok: true } : { error: Object.values(res.errors)[0] };
 }

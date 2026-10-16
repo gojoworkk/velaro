@@ -11,6 +11,6 @@ export function authorize(user: SessionUser | null, role?: Role): 'ok' | 'login'
 export function safeNext(next: unknown): string {
   if (typeof next !== 'string') return '/admin';
   const inAdmin = next === '/admin' || next.startsWith('/admin/') || next.startsWith('/admin?');
-  if (!inAdmin || next.includes('\\') || next.startsWith('/admin/login')) return '/admin';
+  if (!inAdmin || next.includes('\\') || next.startsWith('/admin/login') || next.startsWith('/admin/password')) return '/admin';
   return next;
 }

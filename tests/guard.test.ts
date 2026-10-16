@@ -23,6 +23,7 @@ describe('safeNext', () => {
     ['//evil.com', '/admin'],
     ['/adminka', '/admin'],
     ['/admin/login', '/admin'],
+    ['/admin/password', '/admin'],
     [undefined, '/admin'],
   ])('%s → %s', (input, out) => expect(safeNext(input)).toBe(out));
 });

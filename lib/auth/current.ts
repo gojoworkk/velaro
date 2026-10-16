@@ -19,11 +19,9 @@ export async function currentUser(): Promise<SessionUser | null> {
 export async function requireUser(role?: Role, opts: { allowMustChange?: boolean } = {}): Promise<SessionUser> {
   const user = await currentUser();
   const verdict = authorize(user, role);
-  if (verdict === 'login') {
-    const path = (await headers()).get('x-admin-path') ?? '/admin';
-    redirect(`/admin/login?next=${encodeURIComponent(path)}`);
-  }
+  const path = async () => encodeURIComponent((await headers()).get('x-admin-path') ?? '/admin');
+  if (verdict === 'login') redirect(`/admin/login?next=${await path()}`);
   if (verdict === 'forbidden') notFound();
-  if (user!.mustChangePassword && !opts.allowMustChange) redirect('/admin/password');
+  if (user!.mustChangePassword && !opts.allowMustChange) redirect(`/admin/password?next=${await path()}`);
   return user!;
 }
