@@ -287,3 +287,68 @@ a.a-row:hover { background: var(--canvas-soft); }
 .a-log__who { font-weight: 600; }
 .a-log__note { margin-top: 16px; font-size: 13px; }
 @media (max-width: 767px) { .a-log li { grid-template-columns: 1fr; gap: 2px; } }
+
+/* ── Календарь ─────────────────────────────── */
+.a-cal__nav { display: flex; align-items: center; gap: 8px; margin-left: auto; }
+.a-cal__month { min-width: 150px; text-align: center; font-weight: 600; }
+.a-cal { overflow-x: auto; border: 1px solid var(--hairline); border-radius: var(--r-md); }
+.a-cal__row {
+  display: grid; grid-template-columns: 180px repeat(var(--cols), minmax(30px, 1fr));
+  min-width: calc(180px + var(--cols) * 30px); align-items: stretch; border-top: 1px solid var(--hairline-soft);
+}
+.a-cal__row:first-child { border-top: 0; }
+.a-cal__row > * { grid-row: 1; }
+.a-cal__row--head { background: var(--canvas-soft); color: var(--muted); font-size: 12px; font-weight: 600; }
+.a-cal__car {
+  position: sticky; left: 0; z-index: 2; grid-column: 1; padding: 10px 12px; background: var(--canvas);
+  font-size: 13px; font-weight: 600; border-right: 1px solid var(--hairline-soft);
+}
+.a-cal__row--head .a-cal__car { background: var(--canvas-soft); }
+.a-cal__car small { color: var(--muted); font-weight: 500; }
+.a-cal__day { padding: 10px 0; text-align: center; }
+.a-cal__cell { border-left: 1px solid var(--hairline-soft); min-height: 40px; }
+.a-cal .is-weekend { background: rgba(20, 20, 20, .03); }
+.a-cal__day.is-today { color: var(--ink); background: var(--field); }
+.a-cal__cell.is-today { background: rgba(0, 102, 255, .06); }
+.a-cal__bar {
+  z-index: 1; align-self: center; margin: 4px 2px; padding: 0 8px; height: 28px; line-height: 28px;
+  overflow: hidden; white-space: nowrap; text-overflow: ellipsis; border-radius: var(--r-full); font-size: 12px; font-weight: 600;
+}
+.a-cal__bar--request { background: var(--ink); color: var(--on-primary); }
+.a-cal__bar--block {
+  background: repeating-linear-gradient(135deg, #e6e6e6 0 6px, #f3f3f3 6px 12px); color: var(--ink-soft);
+  border: 1px solid var(--hairline);
+}
+.a-cal__bar.is-cut-start { border-top-left-radius: 0; border-bottom-left-radius: 0; margin-left: 0; }
+.a-cal__bar.is-cut-end { border-top-right-radius: 0; border-bottom-right-radius: 0; margin-right: 0; }
+.a-cal__legend { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; margin-top: 12px; font-size: 13px; }
+.a-cal__swatch { display: inline-block; width: 24px; height: 12px; margin-right: -8px; border-radius: var(--r-full); vertical-align: middle; }
+.a-cal__swatch--request { background: var(--ink); }
+.a-cal__swatch--block { background: repeating-linear-gradient(135deg, #d6d6d6 0 4px, #f3f3f3 4px 8px); }
+.a-blockform { grid-template-columns: minmax(0, 1.4fr) repeat(2, minmax(0, 1fr)) minmax(0, 1.2fr) auto; align-items: start; }
+.a-blockform > .a-btn { height: 48px; margin-top: 25px; }
+.a-blocks { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.a-blocks li {
+  display: grid; grid-template-columns: minmax(0, 1.2fr) 160px minmax(0, 1fr) 120px auto; gap: 12px; align-items: center;
+  padding: 10px 16px; border: 1px solid var(--hairline); border-radius: var(--r-sm); font-size: 14px;
+}
+.a-blocks li:target { border-color: var(--ink); }
+.a-warn { margin: -8px 0 24px; padding: 14px 18px; border-radius: var(--r-sm); background: #fff1e6; color: #7a2e0e; font-size: 14px; }
+.a-warn a { text-decoration: underline; text-underline-offset: 3px; }
+@media (max-width: 900px) {
+  .a-blockform { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .a-blockform > .a-btn { margin-top: 0; grid-column: 1 / -1; }
+  .a-blocks li { grid-template-columns: 1fr; gap: 4px; }
+  .a-cal__nav { margin-left: 0; }
+}
+
+/* Телефон: пункты шапки листаются пальцем, календарь и форма — в ширину экрана */
+@media (max-width: 767px) {
+  .a-nav__links { flex: 1 1 auto; min-width: 0; overflow-x: auto; scrollbar-width: none; }
+  .a-nav__links::-webkit-scrollbar { display: none; }
+  .a-nav__links a { flex: none; }
+  .a-nav__user { flex: none; }
+  .a-blockform { grid-template-columns: minmax(0, 1fr); }
+  .a-cal__row { grid-template-columns: 120px repeat(var(--cols), minmax(30px, 1fr)); min-width: calc(120px + var(--cols) * 30px); }
+  .a-cal__car { padding: 10px 8px; font-size: 12px; }
+}

@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { getRequest } from '@/lib/admin/requests';
+import { describeConflict } from '@/lib/availability';
 import { describeEvent, isStatus, STATUSES, STATUS_LABELS } from '@/lib/admin/statuses';
 import { listUsers } from '@/lib/admin/users';
 import { requireUser } from '@/lib/auth/current';
@@ -34,6 +35,19 @@ export default async function RequestPage({ params }: { params: Promise<{ id: st
         <span className="a-badge">{isStatus(r.status) ? STATUS_LABELS[r.status] : r.status}</span>
         <span className="a-row__muted">создана {formatDateTime(r.createdAt)}</span>
       </div>
+
+      {r.conflicts.length > 0 && r.status !== 'cancelled' && r.status !== 'completed' && (
+        <div className="a-warn" role="status">
+          <b>{r.conflicts[0].kind === 'request' ? 'Даты заняты:' : 'Даты закрыты:'}</b>{' '}
+          {r.conflicts.map((c, i) => (
+            <span key={`${c.kind}${c.id}`}>
+              {i > 0 && '; '}
+              {c.kind === 'request' ? <a href={`/admin/requests/${c.id}`}>{describeConflict(c)}</a> : describeConflict(c)}
+            </span>
+          ))}
+          . Предложите клиенту другие даты или машину.
+        </div>
+      )}
 
       <div className="a-card-grid">
         <div className="a-stack">

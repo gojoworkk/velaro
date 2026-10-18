@@ -12,6 +12,7 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
         <nav className="a-nav__links" aria-label="Разделы">
           <Link href="/admin">Заявки</Link>
           <Link href="/admin/cars">Автопарк</Link>
+          <Link href="/admin/calendar">Календарь</Link>
           {user.role === 'owner' && <Link href="/admin/managers">Менеджеры</Link>}
         </nav>
         <div className="a-nav__user">

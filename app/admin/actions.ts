@@ -6,6 +6,8 @@ import type { ActionState } from '@/lib/admin/action-state';
 import { addNote, assignRequest, resendTelegram, setStatus, takeRequest, type ActionResult } from '@/lib/admin/requests';
 import { createCar, moveCar, nextCarId, saveTiers, setCarActive, updateCar, validateCar } from '@/lib/admin/fleet';
 import { getPhotoStore, photoError, photoName, type PhotoStore } from '@/lib/photo-store';
+import { addBlock, removeBlock } from '@/lib/admin/calendar';
+import { todayMoscow } from '@/lib/validation';
 import { changeOwnPassword, createManager, resetPassword, setActive } from '@/lib/admin/users';
 import { sendTelegram } from '@/lib/telegram';
 import { SESSION_COOKIE, sessionCookieOptions } from '@/lib/auth/cookie';
@@ -185,4 +187,24 @@ export async function updateCarAction(id: string, _prev: ActionState, fd: FormDa
   if (store && res.oldPhotoUrl) await store.remove(res.oldPhotoUrl);
   revalidateFleet();
   redirect('/admin/cars');
+}
+
+function revalidateCalendar() {
+  revalidatePath('/admin/calendar');
+  revalidatePath('/api/catalog');
+}
+
+export async function addBlockAction(_prev: ActionState, fd: FormData): Promise<ActionState> {
+  const user = await requireUser();
+  const raw = { carId: str(fd, 'carId'), from: str(fd, 'from'), to: str(fd, 'to'), reason: str(fd, 'reason') };
+  const res = await addBlock(getDb(), user, raw, todayMoscow(new Date()), new Date());
+  revalidateCalendar();
+  return res.ok ? { ok: true } : { errors: res.errors, values: raw };
+}
+
+export async function removeBlockAction(id: number, _prev: ActionState, _fd: FormData): Promise<ActionState> {
+  await requireUser();
+  await removeBlock(getDb(), id);
+  revalidateCalendar();
+  return { ok: true };
 }
