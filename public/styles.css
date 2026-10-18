@@ -1678,3 +1678,62 @@ button { cursor: pointer; }
 .hp { position: absolute; left: -10000px; width: 1px; height: 1px; overflow: hidden; }
 .form__status { flex-basis: 100%; font-size: 15px; font-weight: 600; color: #b42318; }
 .form__submit .btn[disabled] { opacity: .6; cursor: progress; }
+
+/* ── Свой календарь дат ─────────────────────── */
+.booking__date {
+  width: 100%; height: 24px; padding: 0; border: 0; background: transparent; color: var(--on-primary);
+  font: inherit; font-size: 16px; font-weight: 450; text-align: left; cursor: pointer; white-space: nowrap;
+}
+.booking__date.is-empty { color: rgba(255, 255, 255, .55); }
+.field .datefield {
+  display: block; width: 100%; min-height: 52px; padding: var(--s-sm) var(--s-md); border: 0; border-radius: var(--r-sm);
+  background: var(--field); color: var(--ink); font: inherit; font-size: 16px; line-height: 1.38; text-align: left;
+  cursor: pointer; transition: box-shadow .15s ease;
+}
+.field .datefield.is-empty { color: var(--faint); }
+.field .datefield:focus-visible,
+.field .datefield[aria-expanded="true"] { outline: none; box-shadow: inset 0 0 0 2px var(--ink); }
+.dp {
+  position: absolute; z-index: 60; width: 320px; padding: 16px;
+  border: 1px solid rgba(255, 255, 255, .14); border-radius: var(--r-md);
+  background: #0c0c0c; color: var(--on-primary); box-shadow: 0 24px 60px rgba(0, 0, 0, .45);
+}
+.dp[hidden] { display: none; }
+.dp__head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.dp__title { margin: 0; font-weight: 600; }
+.dp__nav {
+  width: 36px; height: 36px; border: 1px solid rgba(255, 255, 255, .18); border-radius: var(--r-full);
+  background: transparent; color: var(--on-primary); font-size: 18px; line-height: 1; cursor: pointer;
+}
+.dp__nav:hover:not(:disabled) { background: var(--on-primary); color: var(--ink); }
+.dp__nav:disabled { opacity: .3; cursor: default; }
+.dp__week, .dp__grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
+.dp__week {
+  margin-bottom: 4px; color: rgba(255, 255, 255, .45); font-family: var(--font-mono); font-size: 11px;
+  text-align: center; text-transform: uppercase;
+}
+.dp__day {
+  height: 40px; border: 0; border-radius: var(--r-full); background: transparent; color: var(--on-primary);
+  font: inherit; font-size: 14px; cursor: pointer; transition: background-color .15s ease;
+}
+.dp__day:hover:not(:disabled) { background: rgba(255, 255, 255, .1); }
+.dp__day:focus-visible { outline: 2px solid var(--on-primary); outline-offset: -2px; }
+.dp__day:disabled { color: rgba(255, 255, 255, .25); cursor: default; }
+.dp__day.is-busy { text-decoration: line-through; text-decoration-thickness: 1.5px; color: rgba(255, 255, 255, .35); }
+.dp__day.is-today { box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .35); }
+.dp__day.is-in { border-radius: 0; background: rgba(255, 255, 255, .12); }
+.dp__day.is-start, .dp__day.is-end { background: var(--on-primary); color: var(--ink); font-weight: 600; }
+.dp__hint { margin: 12px 0 0; color: rgba(255, 255, 255, .6); font-size: 13px; }
+.dp__foot { display: flex; justify-content: space-between; align-items: center; margin-top: 12px; }
+.dp__clear {
+  padding: 0; border: 0; background: none; color: rgba(255, 255, 255, .7); font: inherit; font-size: 14px;
+  cursor: pointer; text-decoration: underline; text-underline-offset: 3px;
+}
+.dp--sheet {
+  position: fixed; left: 0; right: 0; bottom: 0; top: auto; width: auto;
+  padding: 20px 16px calc(20px + env(safe-area-inset-bottom)); border-radius: var(--r-md) var(--r-md) 0 0;
+}
+.car--busy .car__media img { filter: grayscale(.8) brightness(.7); }
+.car__media .car__busy { top: auto; bottom: 12px; }
+.car__media .car__busy[hidden] { display: none; }
+.car [data-book]:disabled { opacity: .45; cursor: not-allowed; }

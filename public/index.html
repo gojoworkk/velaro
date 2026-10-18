@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preconnect" href="https://images.unsplash.com">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@125,800..900&family=Inter:opsz,wght@14..32,300..700&family=JetBrains+Mono:wght@400;500;700&display=swap">
-  <link rel="stylesheet" href="styles.css?v=57">
+  <link rel="stylesheet" href="styles.css?v=58">
 </head>
 <body>
   <a class="skip-link" href="#main">Перейти к содержанию</a>
@@ -107,14 +107,16 @@
 
         <!-- Быстрый подбор -->
         <form class="booking" id="booking" aria-label="Быстрый подбор автомобиля">
-          <label class="booking__field">
+          <div class="booking__field">
             <span class="booking__label">Получение</span>
-            <input type="date" name="from" data-date="from">
-          </label>
-          <label class="booking__field">
+            <button type="button" class="booking__date is-empty" data-picker="from" data-placeholder="Дата" aria-haspopup="dialog" aria-expanded="false" aria-label="Получение">Дата</button>
+            <input type="hidden" name="from" data-date="from">
+          </div>
+          <div class="booking__field">
             <span class="booking__label">Возврат</span>
-            <input type="date" name="to" data-date="to">
-          </label>
+            <button type="button" class="booking__date is-empty" data-picker="to" data-placeholder="Дата" aria-haspopup="dialog" aria-expanded="false" aria-label="Возврат">Дата</button>
+            <input type="hidden" name="to" data-date="to">
+          </div>
           <label class="booking__field">
             <span class="booking__label">Класс</span>
             <select name="cls">
@@ -403,12 +405,14 @@
                 </div>
                 <div class="field">
                   <label for="f-from">Получение</label>
-                  <input id="f-from" name="from" type="date" required data-date="from" aria-describedby="f-from-err">
+                  <button type="button" id="f-from" class="datefield is-empty" data-picker="from" data-placeholder="Выберите дату" aria-haspopup="dialog" aria-expanded="false" aria-describedby="f-from-err">Выберите дату</button>
+                  <input type="hidden" name="from" data-date="from">
                   <p class="field__error" id="f-from-err"></p>
                 </div>
                 <div class="field">
                   <label for="f-to">Возврат</label>
-                  <input id="f-to" name="to" type="date" required data-date="to" aria-describedby="f-to-err">
+                  <button type="button" id="f-to" class="datefield is-empty" data-picker="to" data-placeholder="Выберите дату" aria-haspopup="dialog" aria-expanded="false" aria-describedby="f-to-err">Выберите дату</button>
+                  <input type="hidden" name="to" data-date="to">
                   <p class="field__error" id="f-to-err"></p>
                 </div>
                 <fieldset class="field field--wide">
@@ -487,6 +491,6 @@
   </footer>
 
   <script src="https://unpkg.com/lenis@1.1.13/dist/lenis.min.js"></script>
-  <script src="script.js?v=57"></script>
+  <script src="script.js?v=58"></script>
 </body>
 </html>

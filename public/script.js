@@ -152,27 +152,192 @@
 
   // ── Даты: общие для подбора и формы ─────────────────────
   const today = toISO(new Date());
-  const dateInputs = $$('input[data-date]');
-  dateInputs.forEach((input) => { input.min = today; });
+  const dateInputs = $$('input[data-date]');   // скрытые поля с ISO-датами
+  const dateButtons = $$('[data-picker]');      // видимые «поля» дат
 
   const syncDates = () => {
-    dateInputs.forEach((input) => {
-      const value = input.dataset.date === 'from' ? state.from : state.to;
-      if (input.value !== value) input.value = value;
-      if (input.dataset.date === 'to') input.min = state.from || today;
+    dateInputs.forEach((input) => { input.value = input.dataset.date === 'from' ? state.from : state.to; });
+    dateButtons.forEach((b) => {
+      const v = b.dataset.picker === 'from' ? state.from : state.to;
+      b.textContent = v ? dayMonth.format(parseISO(v)) : b.dataset.placeholder;
+      b.classList.toggle('is-empty', !v);
     });
   };
 
-  dateInputs.forEach((input) => {
-    input.addEventListener('change', () => {
-      state[input.dataset.date] = input.value;
-      // Возврат не может быть раньше получения
-      if (state.from && state.to && state.to < state.from) state.to = state.from;
-      syncDates();
-      updateFleetPrices();
-      renderSummary();
-    });
+  // ── Занятость машин ─────────────────────────────────────
+  const addDaysISO = (iso, n) => { const d = parseISO(iso); d.setDate(d.getDate() + n); return toISO(d); };
+  const busyOf = (carId) => (byId(carId) && byId(carId).busy) || [];
+  const isBusyDay = (ranges, iso) => ranges.some(([a, b]) => a <= iso && iso <= b);
+  const rangeIsFree = (ranges, from, to) => !ranges.some(([a, b]) => a <= to && from <= b);
+  // Первый занятый день после даты получения: возврат не может «перешагнуть» через бронь
+  const nextBusyAfter = (ranges, from) => ranges.map(([a]) => a).filter((a) => a > from).sort()[0] || null;
+
+  function setDates(from, to) {
+    state.from = from;
+    state.to = to;
+    syncDates();
+    dateButtons.forEach((b) => b.removeAttribute('aria-invalid'));
+    ['f-from-err', 'f-to-err'].forEach((id) => { const el = document.getElementById(id); if (el) el.textContent = ''; });
+    updateFleetPrices();
+    markAvailability();
+    renderSummary();
+  }
+
+  // ── Календарь дат в стиле сайта ─────────────────────────
+  const MONTHS_NOM = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
+  const firstOfThisMonth = today.slice(0, 8) + '01';
+  const dp = document.createElement('div');
+  dp.className = 'dp';
+  dp.hidden = true;
+  dp.setAttribute('role', 'dialog');
+  dp.setAttribute('aria-label', 'Выбор дат аренды');
+  dp.innerHTML = `
+    <div class="dp__head">
+      <button type="button" class="dp__nav" data-dp-nav="-1" aria-label="Предыдущий месяц">‹</button>
+      <p class="dp__title" aria-live="polite"></p>
+      <button type="button" class="dp__nav" data-dp-nav="1" aria-label="Следующий месяц">›</button>
+    </div>
+    <div class="dp__week" aria-hidden="true"><span>Пн</span><span>Вт</span><span>Ср</span><span>Чт</span><span>Пт</span><span>Сб</span><span>Вс</span></div>
+    <div class="dp__grid"></div>
+    <p class="dp__hint"></p>
+    <div class="dp__foot">
+      <button type="button" class="dp__clear">Сбросить</button>
+      <button type="button" class="btn btn--light btn--sm dp__done">Готово</button>
+    </div>`;
+  document.body.append(dp);
+  const picker = { anchor: null, carId: '', phase: 'from', month: null, from: '', to: '' };
+  const isSheet = () => window.matchMedia('(max-width: 640px)').matches;
+
+  function renderPicker() {
+    const y = picker.month.getFullYear(), m = picker.month.getMonth();
+    $('.dp__title', dp).textContent = `${MONTHS_NOM[m]} ${y}`;
+    $('[data-dp-nav="-1"]', dp).disabled = toISO(picker.month) <= firstOfThisMonth;
+    const ranges = picker.carId ? busyOf(picker.carId) : [];
+    const limit = picker.phase === 'to' && picker.from ? nextBusyAfter(ranges, picker.from) : null;
+    const offset = (new Date(y, m, 1).getDay() + 6) % 7;
+    const total = new Date(y, m + 1, 0).getDate();
+    let html = '<span></span>'.repeat(offset);
+    for (let day = 1; day <= total; day++) {
+      const iso = toISO(new Date(y, m, day));
+      const busy = isBusyDay(ranges, iso);
+      const beyond = Boolean(limit) && iso >= limit && iso > picker.from;
+      const disabled = iso < today || busy || beyond;
+      const cls = ['dp__day'];
+      if (busy) cls.push('is-busy');
+      if (iso === today) cls.push('is-today');
+      if (iso === picker.from) cls.push('is-start');
+      if (iso === picker.to) cls.push('is-end');
+      if (picker.from && picker.to && iso > picker.from && iso < picker.to) cls.push('is-in');
+      const label = `${dayMonth.format(parseISO(iso))}${busy ? ', занято' : ''}`;
+      const pressed = iso === picker.from || iso === picker.to ? ' aria-pressed="true"' : '';
+      html += `<button type="button" class="${cls.join(' ')}" data-iso="${iso}" aria-label="${label}"${disabled ? ' disabled' : ''}${pressed}>${day}</button>`;
+    }
+    $('.dp__grid', dp).innerHTML = html;
+    $('.dp__hint', dp).textContent = (picker.phase === 'from' ? 'Выберите дату получения' : 'Выберите дату возврата') +
+      (ranges.length ? ' · зачёркнутые дни заняты' : '');
+  }
+
+  function placePicker() {
+    dp.classList.toggle('dp--sheet', isSheet());
+    if (isSheet()) { dp.style.left = ''; dp.style.top = ''; return; }
+    const r = picker.anchor.getBoundingClientRect();
+    const w = dp.offsetWidth, h = dp.offsetHeight;
+    const left = Math.min(Math.max(16, r.left), document.documentElement.clientWidth - w - 16) + window.scrollX;
+    const above = r.bottom + h + 12 > window.innerHeight && r.top > h + 12;
+    dp.style.left = `${left}px`;
+    dp.style.top = `${(above ? r.top - h - 8 : r.bottom + 8) + window.scrollY}px`;
+  }
+
+  function focusDay() {
+    const want = picker.phase === 'to' && picker.to ? picker.to : picker.from;
+    const target = (want && $(`.dp__day[data-iso="${want}"]:not([disabled])`, dp)) || $('.dp__day:not([disabled])', dp);
+    if (target) target.focus({ preventScroll: true });
+  }
+
+  function openPicker(btn) {
+    picker.anchor = btn;
+    picker.carId = btn.closest('#request-form') ? $('#f-car').value : '';
+    picker.from = state.from;
+    picker.to = state.to;
+    picker.phase = btn.dataset.picker === 'to' && state.from ? 'to' : 'from';
+    const base = parseISO((btn.dataset.picker === 'to' && state.to) || state.from || today);
+    picker.month = new Date(base.getFullYear(), base.getMonth(), 1);
+    dateButtons.forEach((b) => b.setAttribute('aria-expanded', String(b === btn)));
+    dp.hidden = false;
+    renderPicker();
+    placePicker();
+    focusDay();
+  }
+
+  function closePicker(returnFocus = true) {
+    if (dp.hidden) return;
+    dp.hidden = true;
+    dateButtons.forEach((b) => b.setAttribute('aria-expanded', 'false'));
+    if (returnFocus && picker.anchor) picker.anchor.focus({ preventScroll: true });
+  }
+
+  function pickDay(iso) {
+    if (picker.phase === 'from' || !picker.from || iso < picker.from) {
+      picker.from = iso;
+      picker.to = '';
+      picker.phase = 'to';
+    } else {
+      picker.to = iso;
+      picker.phase = 'from';
+    }
+    setDates(picker.from, picker.to);
+    if (picker.to) closePicker();
+    else { renderPicker(); focusDay(); }
+  }
+
+  function shiftPickerMonth(delta) {
+    const next = new Date(picker.month.getFullYear(), picker.month.getMonth() + delta, 1);
+    if (toISO(next) < firstOfThisMonth) return;
+    picker.month = next;
+    renderPicker();
+  }
+
+  dateButtons.forEach((b) => b.addEventListener('click', () => (dp.hidden || picker.anchor !== b ? openPicker(b) : closePicker())));
+  dp.addEventListener('click', (e) => {
+    const day = e.target.closest('.dp__day');
+    if (day && !day.disabled) pickDay(day.dataset.iso);
+    const nav = e.target.closest('[data-dp-nav]');
+    if (nav && !nav.disabled) shiftPickerMonth(Number(nav.dataset.dpNav));
+    if (e.target.closest('.dp__clear')) {
+      picker.from = '';
+      picker.to = '';
+      picker.phase = 'from';
+      setDates('', '');
+      renderPicker();
+    }
+    if (e.target.closest('.dp__done')) closePicker();
   });
+  dp.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') { e.preventDefault(); closePicker(); return; }
+    if (e.key === 'PageUp' || e.key === 'PageDown') {
+      e.preventDefault();
+      shiftPickerMonth(e.key === 'PageUp' ? -1 : 1);
+      focusDay();
+      return;
+    }
+    const day = e.target.closest('.dp__day');
+    const step = { ArrowLeft: -1, ArrowRight: 1, ArrowUp: -7, ArrowDown: 7 }[e.key];
+    if (!day || !step) return;
+    e.preventDefault();
+    const iso = addDaysISO(day.dataset.iso, step);
+    const d = parseISO(iso);
+    if (d.getMonth() !== picker.month.getMonth()) {
+      if (iso < today) return;
+      picker.month = new Date(d.getFullYear(), d.getMonth(), 1);
+      renderPicker();
+    }
+    const target = $(`.dp__day[data-iso="${iso}"]`, dp);
+    if (target) target.focus();
+  });
+  document.addEventListener('pointerdown', (e) => {
+    if (!dp.hidden && !dp.contains(e.target) && !e.target.closest('[data-picker]')) closePicker(false);
+  });
+  window.addEventListener('resize', () => { if (!dp.hidden) placePicker(); });
 
   // ── Каталог ─────────────────────────────────────────────
   const fleetList = $('#fleet-list');
@@ -184,6 +349,7 @@
       <div class="car__media">
         <img src="${imgUrl(car.img, 900)}" alt="${car.alt}" loading="lazy" style="object-position:${car.pos}">
         <span class="badge-overlay">${CATS[car.cat]}</span>
+        <span class="badge-overlay car__busy" data-busy hidden>Занята в эти даты</span>
       </div>
       <div class="car__body">
         <h3 class="car__name">${car.name}</h3>
@@ -221,6 +387,23 @@
     } else {
       fleetNote.textContent = 'Цена за сутки при аренде на 1–2 дня';
     }
+  }
+
+  // Даты выбраны — машины, занятые в них, нельзя забронировать
+  function markAvailability() {
+    const has = Boolean(state.from && state.to);
+    $$('.car', fleetList).forEach((el) => {
+      const busy = has && !rangeIsFree(busyOf(el.dataset.id), state.from, state.to);
+      el.classList.toggle('car--busy', busy);
+      $('[data-busy]', el).hidden = !busy;
+      $('[data-book]', el).disabled = busy;
+    });
+    $$('#f-car option').forEach((opt) => {
+      if (!opt.value) return;
+      const busy = has && !rangeIsFree(busyOf(opt.value), state.from, state.to);
+      opt.disabled = busy;
+      opt.textContent = opt.dataset.label + (busy ? ' — занята в эти даты' : '');
+    });
   }
 
   const filterButtons = $$('[data-filter]');
@@ -709,11 +892,22 @@
   Object.entries(CATS).forEach(([cat, label]) => {
     const group = document.createElement('optgroup');
     group.label = label;
-    CARS.filter((c) => c.cat === cat).forEach((c) => group.append(new Option(`${c.name} — от ${rub(c.price)} в сутки`, c.id)));
+    CARS.filter((c) => c.cat === cat).forEach((c) => {
+      const opt = new Option(`${c.name} — от ${rub(c.price)} в сутки`, c.id);
+      opt.dataset.label = opt.textContent;
+      group.append(opt);
+    });
     carSelect.append(group);
   });
 
   carSelect.addEventListener('change', renderSummary);
+  // Смена машины: если её даты заняты — сбрасываем их и объясняем почему
+  carSelect.addEventListener('change', () => {
+    if (state.from && state.to && !rangeIsFree(busyOf(carSelect.value), state.from, state.to)) {
+      setDates('', '');
+      setError($('#f-from'), 'Эти даты заняты у выбранной машины — выберите другие.');
+    }
+  });
 
   const isDelivery = () => form.elements.delivery.value === 'delivery';
   $$('input[name="delivery"]', form).forEach((r) => r.addEventListener('change', () => {
@@ -803,10 +997,14 @@
     if (!f.name.value.trim()) errors.push([f.name, 'Укажите имя, чтобы мы знали, как к вам обращаться.']);
     if (phoneDigits(f.phone.value).length !== 11) errors.push([f.phone, 'Укажите телефон полностью: +7 и ещё 10 цифр.']);
     if (!f.car.value) errors.push([f.car, 'Выберите автомобиль из списка.']);
-    if (!f.from.value) errors.push([f.from, 'Укажите дату получения.']);
-    else if (f.from.value < today) errors.push([f.from, 'Дата получения не может быть в прошлом.']);
-    if (!f.to.value) errors.push([f.to, 'Укажите дату возврата.']);
-    else if (f.from.value && f.to.value < f.from.value) errors.push([f.to, 'Дата возврата должна быть не раньше даты получения.']);
+    const fromBtn = $('#f-from'), toBtn = $('#f-to');
+    if (!f.from.value) errors.push([fromBtn, 'Укажите дату получения.']);
+    else if (f.from.value < today) errors.push([fromBtn, 'Дата получения не может быть в прошлом.']);
+    if (!f.to.value) errors.push([toBtn, 'Укажите дату возврата.']);
+    else if (f.from.value && f.to.value < f.from.value) errors.push([toBtn, 'Дата возврата должна быть не раньше даты получения.']);
+    else if (f.car.value && f.from.value && !rangeIsFree(busyOf(f.car.value), f.from.value, f.to.value)) {
+      errors.push([fromBtn, 'Эти даты заняты у выбранной машины — выберите другие.']);
+    }
     if (isDelivery() && !f.address.value.trim()) errors.push([f.address, 'Укажите адрес, куда привезти автомобиль.']);
     return errors;
   }
@@ -858,7 +1056,7 @@
       }
       if (res.status === 400 && data.errors) {
         const fields = Object.entries(data.errors)
-          .map(([key, message]) => [f[SERVER_FIELDS[key]], message])
+          .map(([key, message]) => [['from', 'to'].includes(SERVER_FIELDS[key]) ? $('#f-' + SERVER_FIELDS[key]) : f[SERVER_FIELDS[key]], message])
           .filter(([input]) => input);
         fields.forEach(([input, message]) => setError(input, message));
         if (fields.length) { fields[0][0].focus(); return; }
@@ -883,6 +1081,7 @@
     state.from = '';
     state.to = '';
     syncDates();
+    markAvailability();
     addressField.hidden = false;
     updateFleetPrices();
     renderSummary();
