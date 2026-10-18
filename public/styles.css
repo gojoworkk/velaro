@@ -576,7 +576,8 @@ button { cursor: pointer; }
 .stage__arrow {
   position: absolute;
   top: 54%;
-  z-index: 3;
+  z-index: 4; /* выше списка моделей: на телефоне стрелки стоят на одной линии с ним */
+  touch-action: manipulation; /* без задержки двойного тапа: быстрые нажатия не теряются */
   display: inline-flex;
   align-items: center;
   justify-content: center;
