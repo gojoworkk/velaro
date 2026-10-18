@@ -1,6 +1,6 @@
 import { describe, it, expect, afterEach } from 'vitest';
 import { eq } from 'drizzle-orm';
-import { cars } from '@/db/schema';
+import { cars, requests } from '@/db/schema';
 import { GET } from '@/app/api/catalog/route';
 import { getCatalog } from '@/lib/catalog';
 import { setDb } from '@/lib/db';
@@ -18,9 +18,19 @@ describe('каталог', () => {
       id: 'gt3rs', name: 'Porsche 911 GT3 RS', cat: 'sport', power: 500, accel: '3,3', seats: 2,
       price: 95000, deposit: 300000,
       img: 'https://images.unsplash.com/photo-1580274455191-1c62238fa333?auto=format&fit=crop&w=900&q=80',
-      pos: '50% 52%', alt: 'Матово-чёрный Porsche 911 GT3 RS на набережной на закате',
+      pos: '50% 52%', alt: 'Матово-чёрный Porsche 911 GT3 RS на набережной на закате', busy: [],
     });
     expect(tiers).toHaveLength(4);
+  });
+  it('busy — только даты подтверждённых броней и блокировок', async () => {
+    const db = await createTestDb();
+    await db.insert(requests).values({
+      name: 'Секрет', phone: '+79990000000', carId: 'g63', dateFrom: '2026-10-20', dateTo: '2026-10-23', delivery: 'pickup',
+      days: 3, dayRate: 1, total: 3, deposit: 1, status: 'confirmed',
+    });
+    const { cars: list } = await getCatalog(db, '2026-10-18');
+    expect(list.find((c) => c.id === 'g63')!.busy).toEqual([['2026-10-20', '2026-10-23']]);
+    expect(JSON.stringify(list)).not.toContain('Секрет');
   });
   it('GET /api/catalog — JSON: кэш только на CDN, браузер всегда спрашивает свежее', async () => {
     setDb(await createTestDb());
