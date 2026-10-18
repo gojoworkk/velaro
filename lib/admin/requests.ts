@@ -2,6 +2,7 @@ import { and, count, desc, eq, ilike, isNull, like, or, type SQL } from 'drizzle
 import { cars, requestEvents, requests, users } from '@/db/schema';
 import type { AppDb } from '@/db/types';
 import type { SessionUser } from '@/lib/auth/session';
+import { describeConflict, findConflicts, withCarLock, type Conflict } from '@/lib/availability';
 import { adminUrl, formatRequestMessage } from '@/lib/telegram';
 import { isStatus, STATUSES, type Status } from './statuses';
 
@@ -20,6 +21,8 @@ export type RequestEvent = {
 };
 export type RequestDetail = typeof requests.$inferSelect & {
   carName: string; assigneeName: string | null; events: RequestEvent[]; people: Record<string, string>;
+  /** Другие брони и блокировки этой машины на те же даты */
+  conflicts: Conflict[];
 };
 export type ActionResult = { ok: true } | { ok: false; error: string };
 
@@ -98,7 +101,8 @@ export async function getRequest(db: AppDb, id: number): Promise<RequestDetail |
     .where(eq(requestEvents.requestId, id))
     .orderBy(desc(requestEvents.id));
   const assigneeName = row.r.assignedTo ? (people[String(row.r.assignedTo)] ?? null) : null;
-  return { ...row.r, carName: row.carName, assigneeName, events, people };
+  const conflicts = await findConflicts(db, row.r.carId, { from: row.r.dateFrom, to: row.r.dateTo }, { excludeRequestId: row.r.id });
+  return { ...row.r, carName: row.carName, assigneeName, events, people, conflicts };
 }
 
 /** Взять в работу: побеждает первый — условие assigned_to IS NULL в самом UPDATE */
@@ -148,12 +152,24 @@ export async function assignRequest(db: AppDb, id: number, actor: SessionUser, t
 
 export async function setStatus(db: AppDb, id: number, actor: SessionUser, status: unknown, now: Date): Promise<ActionResult> {
   if (!isStatus(status)) return { ok: false, error: 'Неизвестный статус.' };
-  const [r] = await db.select({ status: requests.status }).from(requests).where(eq(requests.id, id));
+  const [r] = await db
+    .select({ status: requests.status, carId: requests.carId, from: requests.dateFrom, to: requests.dateTo })
+    .from(requests)
+    .where(eq(requests.id, id));
   if (!r) return NOT_FOUND;
   if (r.status === status) return OK;
-  await db.update(requests).set({ status }).where(eq(requests.id, id));
-  await db.insert(requestEvents).values({ requestId: id, userId: actor.id, type: 'status', fromValue: r.status, toValue: status, createdAt: now });
-  return OK;
+  const apply = async (tx: AppDb): Promise<ActionResult> => {
+    await tx.update(requests).set({ status }).where(eq(requests.id, id));
+    await tx.insert(requestEvents).values({ requestId: id, userId: actor.id, type: 'status', fromValue: r.status, toValue: status, createdAt: now });
+    return OK;
+  };
+  if (status !== 'confirmed') return apply(db);
+  // Подтверждение занимает даты: проверяем и записываем под блокировкой машины
+  return withCarLock(db, r.carId, async (tx) => {
+    const [c] = await findConflicts(tx, r.carId, { from: r.from, to: r.to }, { excludeRequestId: id });
+    if (c) return { ok: false, error: `${c.kind === 'request' ? 'Даты заняты' : 'Даты закрыты'}: ${describeConflict(c)}` };
+    return apply(tx);
+  });
 }
 
 export async function addNote(db: AppDb, id: number, actor: SessionUser, text: unknown, now: Date): Promise<ActionResult> {

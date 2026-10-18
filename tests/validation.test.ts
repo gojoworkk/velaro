@@ -36,6 +36,7 @@ describe('validateRequest', () => {
     ['dateFrom', { dateFrom: '2026-10-14' }],
     ['dateFrom', { dateFrom: 'завтра' }],
     ['dateTo', { dateTo: '2026-10-19' }],
+    ['dateTo', { dateTo: '2027-10-21' }],
     ['delivery', { delivery: 'teleport' }],
     ['address', { address: '' }],
     ['comment', { comment: 'x'.repeat(1001) }],

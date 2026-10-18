@@ -5,6 +5,7 @@ import { validateRequest } from './validation';
 import { quote } from './pricing';
 import { hashIp, checkRateLimit } from './rate-limit';
 import { getTiers } from './tiers';
+import { findConflicts } from './availability';
 import { adminUrl, formatRequestMessage } from './telegram';
 
 export type CreateDeps = {
@@ -35,6 +36,11 @@ export async function createRequest(db: AppDb, body: unknown, deps: CreateDeps):
 
   const [car] = await db.select().from(cars).where(and(eq(cars.id, input.carId), eq(cars.active, true)));
   if (!car) return { status: 400, errors: { carId: 'Этот автомобиль сейчас недоступен — выберите другой.' } };
+
+  // Даты заняты подтверждённой бронью или блокировкой — заявку не принимаем
+  if ((await findConflicts(db, car.id, { from: input.dateFrom, to: input.dateTo })).length) {
+    return { status: 400, errors: { dateFrom: 'Эти даты уже заняты — выберите другие или другую машину.' } };
+  }
 
   // Цена — только из базы; всё, что прислал браузер про деньги, игнорируется
   const price = quote(car.pricePerDay, input.dateFrom, input.dateTo, await getTiers(db));

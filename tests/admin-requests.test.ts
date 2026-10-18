@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
 import { eq } from 'drizzle-orm';
-import { requestEvents, requests } from '@/db/schema';
+import { carBlocks, requestEvents, requests } from '@/db/schema';
 import type { AppDb } from '@/db/types';
 import {
   addNote, assignRequest, getRequest, listRequests, resendTelegram, setStatus, takeRequest,
@@ -151,5 +151,43 @@ describe('getRequest и resendTelegram', () => {
     const res = await resendTelegram(db, r.id, vi.fn().mockResolvedValue(false));
     expect(res.ok).toBe(false);
     expect((await getRequest(db, r.id))!.telegramSent).toBe(false);
+  });
+});
+
+describe('подтверждение и занятость', () => {
+  const plain = (s: string) => s.replace(/[  ]/g, ' ');
+  it('нельзя подтвердить при пересечении с подтверждённой; завершить — можно; конфликт виден в карточке', async () => {
+    const db = await createTestDb();
+    const anna = await makeUser(db);
+    const a = await addRequest(db, { status: 'confirmed' }); // 20–23
+    const b = await addRequest(db, { dateFrom: '2026-10-23', dateTo: '2026-10-25' });
+    const res = await setStatus(db, b.id, anna, 'confirmed', NOW);
+    expect(res.ok === false && plain(res.error)).toBe(`Даты заняты: заявка №${a.id}, 20–23 октября`);
+    expect((await getRequest(db, b.id))!.conflicts.map((c) => c.id)).toEqual([a.id]);
+    expect(await setStatus(db, b.id, anna, 'completed', NOW)).toEqual({ ok: true });
+  });
+  it('блокировка мешает подтверждению', async () => {
+    const db = await createTestDb();
+    const anna = await makeUser(db);
+    await db.insert(carBlocks).values({ carId: 'g63', dateFrom: '2026-10-21', dateTo: '2026-10-21', reason: 'ТО', createdBy: anna.id, createdAt: NOW });
+    const r = await addRequest(db);
+    const res = await setStatus(db, r.id, anna, 'confirmed', NOW);
+    expect(res.ok === false && plain(res.error)).toBe('Даты закрыты: ТО, 21 октября');
+  });
+  it('две пересекающиеся заявки подтверждают одновременно — проходит одна', async () => {
+    const db = await createTestDb();
+    const anna = await makeUser(db);
+    const a = await addRequest(db);
+    const b = await addRequest(db, { dateFrom: '2026-10-22', dateTo: '2026-10-24' });
+    const results = await Promise.all([setStatus(db, a.id, anna, 'confirmed', NOW), setStatus(db, b.id, anna, 'confirmed', NOW)]);
+    expect(results.filter((r) => r.ok)).toHaveLength(1);
+  });
+  it('без пересечения подтверждается; повторное «Подтверждена» — без проверки себя', async () => {
+    const db = await createTestDb();
+    const anna = await makeUser(db);
+    const r = await addRequest(db);
+    expect(await setStatus(db, r.id, anna, 'confirmed', NOW)).toEqual({ ok: true });
+    expect(await setStatus(db, r.id, anna, 'confirmed', NOW)).toEqual({ ok: true });
+    expect((await getRequest(db, r.id))!.conflicts).toEqual([]);
   });
 });

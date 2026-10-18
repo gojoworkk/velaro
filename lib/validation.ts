@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { countDays } from './pricing';
 
 export type RequestInput = {
   name: string;
@@ -61,6 +62,7 @@ export function validateRequest(body: unknown, now: Date): ValidationResult {
   if (raw) {
     if (raw.dateFrom < todayMoscow(now)) errors.dateFrom ??= 'Дата получения не может быть в прошлом.';
     if (raw.dateTo < raw.dateFrom) errors.dateTo ??= 'Дата возврата должна быть не раньше даты получения.';
+    else if (countDays(raw.dateFrom, raw.dateTo) > 365) errors.dateTo ??= 'Аренда — не дольше 365 суток.';
     if (raw.delivery === 'delivery' && !raw.address) errors.address ??= 'Укажите адрес, куда привезти автомобиль.';
   }
 
