@@ -23,3 +23,21 @@ describe('quote', () => {
   it('итог = цена за сутки × сутки', () =>
     expect(quote(150000, '2026-10-20', '2026-10-27')).toEqual({ days: 7, dayRate: 120000, total: 840000 }));
 });
+
+describe('свои скидки', () => {
+  const tiers = [
+    { minDays: 1, percent: 5 },
+    { minDays: 2, percent: 50 },
+    { minDays: 10, percent: 60 },
+    { minDays: 20, percent: 70 },
+  ];
+  it('discountFor берёт последнюю подходящую ступень', () => {
+    expect(discountFor(1, tiers)).toBe(0.05);
+    expect(discountFor(9, tiers)).toBe(0.5);
+    expect(discountFor(25, tiers)).toBe(0.7);
+  });
+  it('dayRate и quote считают по переданным скидкам', () => {
+    expect(dayRate(100000, 1, tiers)).toBe(95000);
+    expect(quote(100000, '2026-10-20', '2026-10-22', tiers)).toEqual({ days: 2, dayRate: 50000, total: 100000 });
+  });
+});
