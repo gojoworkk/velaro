@@ -278,3 +278,12 @@ a.a-row:hover { background: var(--canvas-soft); }
 .a-check { display: inline-flex; align-items: center; gap: 10px; font-size: 15px; font-weight: 600; cursor: pointer; }
 .a-check input { width: 20px; height: 20px; accent-color: var(--ink); }
 @media (max-width: 900px) { .a-carform { grid-template-columns: 1fr; } }
+
+/* ── Журнал цен ────────────────────────────── */
+.a-log { margin: 0; padding: 0; list-style: none; border: 1px solid var(--hairline); border-radius: var(--r-md); overflow: hidden; }
+.a-log li { display: grid; grid-template-columns: 130px 160px minmax(0, 1fr); gap: 16px; padding: 12px 20px; border-top: 1px solid var(--hairline-soft); font-size: 14px; }
+.a-log li:first-child { border-top: 0; }
+.a-log time { color: var(--muted); }
+.a-log__who { font-weight: 600; }
+.a-log__note { margin-top: 16px; font-size: 13px; }
+@media (max-width: 767px) { .a-log li { grid-template-columns: 1fr; gap: 2px; } }
