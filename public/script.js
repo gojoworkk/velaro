@@ -1,4 +1,4 @@
-(() => {
+(async () => {
   'use strict';
 
   // ── Данные ──────────────────────────────────────────────
@@ -41,8 +41,8 @@
   const numberFmt = new Intl.NumberFormat('ru-RU');
   const rub = (n) => `${numberFmt.format(n)} ₽`;
   const dayMonth = new Intl.DateTimeFormat('ru-RU', { day: 'numeric', month: 'long' });
-  // Unsplash — по id снимка; полный адрес (свои кадры) используется как есть
-  const imgUrl = (id, w) => id.startsWith('https://') ? id : `https://images.unsplash.com/${id}?auto=format&fit=crop&w=${w}&q=80`;
+  // id снимка Unsplash или полный адрес (свои кадры, фото из админки)
+  const imgUrl = (id, w) => id.includes('/') ? id : `https://images.unsplash.com/${id}?auto=format&fit=crop&w=${w}&q=80`;
   const byId = (id) => CARS.find((c) => c.id === id);
 
   const plural = (n, one, few, many) => {
@@ -78,6 +78,37 @@
     }
     return `${dayMonth.format(a)} — ${dayMonth.format(b)}`;
   };
+
+  // ── Каталог с сервера ───────────────────────────────────
+  // Машины, цены и скидки ведутся в админке. Если сервер не ответил за 2,5 с,
+  // остаются встроенные CARS и TIERS выше — сайт не будет пустым.
+  const termLabel = (min, max) => (max === null ? `От ${min} суток`
+    : min === max ? `${min} ${daysWord(min)}` : `${min}–${max} суток`);
+  try {
+    const res = await fetch('/api/catalog', { signal: AbortSignal.timeout(2500) });
+    if (res.ok) {
+      const data = await res.json();
+      if (Array.isArray(data.cars) && data.cars.length) CARS.splice(0, CARS.length, ...data.cars);
+      if (Array.isArray(data.tiers) && data.tiers.length === 4) {
+        TIERS.splice(0, TIERS.length, ...data.tiers.map((t, i, all) => {
+          const max = i < all.length - 1 ? all[i + 1].minDays - 1 : null;
+          return { min: t.minDays, max, term: termLabel(t.minDays, max), rate: t.percent / 100, featured: i === 2 };
+        }));
+      }
+    }
+  } catch { /* сеть или таймаут — работаем со встроенными данными */ }
+
+  // Суммы и количество в тексте страницы — из каталога
+  const COUNT_WORDS = ['', 'Один', 'Два', 'Три', 'Четыре', 'Пять', 'Шесть', 'Семь', 'Восемь', 'Девять', 'Десять',
+    'Одиннадцать', 'Двенадцать', 'Тринадцать', 'Четырнадцать', 'Пятнадцать', 'Шестнадцать', 'Семнадцать',
+    'Восемнадцать', 'Девятнадцать', 'Двадцать'];
+  const minOf = (key) => rub(Math.min(...CARS.map((c) => c[key])));
+  $$('[data-min-price]').forEach((el) => { el.textContent = minOf('price'); });
+  $$('[data-min-deposit]').forEach((el) => { el.textContent = minOf('deposit'); });
+  $$('[data-car-count]').forEach((el) => {
+    const n = CARS.length;
+    el.textContent = `${COUNT_WORDS[n] || n} ${plural(n, 'автомобиль', 'автомобиля', 'автомобилей')}`;
+  });
 
   // ── Плавный скролл (Lenis, как на референсе design/source.html) ──
   // Колесо мыши и тачпад прокручивают страницу с инерцией; на тачскринах — обычная прокрутка.
@@ -329,7 +360,7 @@
   const FRAME = { w: 2752, h: 1536 };
   const FLOOR = 0.86; // линия пола в долях высоты сцены (центр кольца подиума)
   const STAGE_RATIO = 465 / 1000;
-  const SHOWCASE = [
+  const SHOWCASE_ALL = [
     { id: 'g63', brand: 'Mercedes-AMG', model: 'G 63',
       src: 'https://cdn.gamma.app/bqylkkqzpmrgkk7/design-anything/QNisRoo2UaXm7JmJi8W9U/xuFjXbfaM00jJGzMfYVBT.jpg',
       alt: 'Чёрный Mercedes-AMG G 63 в профиль в тёмной студии',
@@ -352,12 +383,18 @@
       ground: 0.668, tire: 146, wheels: [[833, 880, 125], [2040, 880, 125]], light: [522, 778],
       glow: 0.75 } // матовый серый кузов сильнее подхватывает свет — приглушаем
   ];
+  // Машина, скрытая в админке, не выезжает на первый экран
+  const SHOWCASE = SHOWCASE_ALL.filter((item) => byId(item.id));
+  if (!SHOWCASE.length) SHOWCASE.push(SHOWCASE_ALL[0]);
   const showcase = $('.showcase');
   const stage = $('#stage');
   const showHead = $('.showcase__head', showcase);
   const show = (key) => $(`[data-show="${key}"]`, showcase);
+  let current = Math.min(1, SHOWCASE.length - 1);
+  // Список машин витрины — из того, что осталось после фильтра
+  $('.showcase__list', showcase).innerHTML = SHOWCASE.map((item, i) =>
+    `<li><button type="button" data-goto="${i}"${i === current ? ' aria-current="true"' : ''}>${item.brand} ${item.model}</button></li>`).join('');
   const gotoButtons = $$('.showcase__list [data-goto]', showcase);
-  let current = 1;
 
   // Собираем машины: фото + два вращающихся диска + фара
   const pct = (n) => `${(n * 100).toFixed(3)}%`;
@@ -387,8 +424,8 @@
     const car = byId(item.id);
     show('brand').textContent = item.brand;
     show('model').textContent = item.model;
-    show('tagline').textContent = taglineFor(car);
-    show('book').dataset.book = car.id;
+    show('tagline').textContent = car ? taglineFor(car) : '';
+    show('book').dataset.book = car ? car.id : '';
     gotoButtons.forEach((b) => {
       if (Number(b.dataset.goto) === current) b.setAttribute('aria-current', 'true');
       else b.removeAttribute('aria-current');
@@ -533,9 +570,9 @@
   const PLANS = [
     { cat: 'business', name: 'Бизнес', car: M5, button: 'Смотреть бизнес-класс',
       desc: 'Для деловых встреч, трансферов и поездок за город' },
-    { cat: 'sport', name: 'Спорт', car: SHOWCASE[1], button: 'Смотреть спорткары', popular: true,
+    { cat: 'sport', name: 'Спорт', car: SHOWCASE_ALL[1], button: 'Смотреть спорткары', popular: true,
       desc: 'Для выходных, трека и особых поводов' },
-    { cat: 'suv', name: 'Внедорожники', car: SHOWCASE[0], button: 'Смотреть внедорожники',
+    { cat: 'suv', name: 'Внедорожники', car: SHOWCASE_ALL[0], button: 'Смотреть внедорожники',
       desc: 'Полный привод и пять мест — для семьи и дальних маршрутов' }
   ];
   const PLAN_SIDES = ['left', 'center', 'right'];
@@ -543,6 +580,10 @@
   const PLAN_SCALE = 1.18, PLAN_RATIO = 2.2, PLAN_FLOOR = 0.88;
   const plansEl = $('#plans');
   const plansGrid = $('#plans-grid');
+  // Переключатель срока — по ступеням скидок из админки
+  $('[data-term-group]', plansEl).innerHTML = TIERS.map((t, i) =>
+    `<button type="button" aria-pressed="${i === 0}" data-term="${t.min}">${t.term}` +
+    `${t.rate ? ` <span class="plans__save">−${Math.round(t.rate * 100)}%</span>` : ''}</button>`).join('');
   const termButtons = $$('[data-term]', plansEl);
   let planTerm = 1;
 
@@ -625,7 +666,7 @@
       const rate = dayRate(price, planTerm);
       setAmount($('[data-amount]', card), rate);
       $('[data-total]', card).textContent = planTerm === 1
-        ? 'Базовый тариф на 1–2 суток'
+        ? `Базовый тариф на ${TIERS[0].term}`
         : `за ${planTerm} ${daysWord(planTerm)} — от ${rub(rate * planTerm)}`;
     });
   }

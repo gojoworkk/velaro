@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preconnect" href="https://images.unsplash.com">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@125,800..900&family=Inter:opsz,wght@14..32,300..700&family=JetBrains+Mono:wght@400;500;700&display=swap">
-  <link rel="stylesheet" href="styles.css?v=56">
+  <link rel="stylesheet" href="styles.css?v=57">
 </head>
 <body>
   <a class="skip-link" href="#main">Перейти к содержанию</a>
@@ -26,7 +26,7 @@
       </ul>
       <a class="wordmark" href="#top" aria-label="Velaro, на главную">Velaro</a>
       <a class="nav__cta" href="#request">
-        <span><span class="nav__cta-label">Забронировать от 40 000 ₽</span><span class="nav__cta-short" aria-hidden="true">Бронь</span></span>
+        <span><span class="nav__cta-label">Забронировать от <span data-min-price>40 000 ₽</span></span><span class="nav__cta-short" aria-hidden="true">Бронь</span></span>
         <svg width="8" height="12" viewBox="0 0 8 12" aria-hidden="true"><path d="M1.5 1.5 6 6l-4.5 4.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </a>
     </nav>
@@ -134,7 +134,7 @@
       <div class="container">
         <div class="section-head">
           <h2 class="h2 h2--display" id="fleet-title">Автопарк</h2>
-          <p class="lead">Девять автомобилей, каждому не больше трёх лет. Все обслуживаются у официальных дилеров и проходят мойку перед каждой подачей.</p>
+          <p class="lead"><span data-car-count>Девять автомобилей</span>, каждому не больше трёх лет. Все обслуживаются у официальных дилеров и проходят мойку перед каждой подачей.</p>
         </div>
 
         <!-- Изогнутая лента: карточки загибаются по краям, ровные в центре, справа гаснут -->
@@ -245,7 +245,7 @@
                 <li>Возраст от 23 лет и стаж от 3 лет</li>
                 <li>Для спорткаров — от 25 лет и стаж от 5 лет</li>
                 <li>Паспорт и водительское удостоверение категории B</li>
-                <li>Депозит от 100 000 ₽, возвращаем полностью</li>
+                <li>Депозит от <span data-min-deposit>100 000 ₽</span>, возвращаем полностью</li>
               </ul>
             </div>
             <div class="terms-list">
@@ -487,6 +487,6 @@
   </footer>
 
   <script src="https://unpkg.com/lenis@1.1.13/dist/lenis.min.js"></script>
-  <script src="script.js?v=56"></script>
+  <script src="script.js?v=57"></script>
 </body>
 </html>

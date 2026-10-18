@@ -22,11 +22,12 @@ describe('каталог', () => {
     });
     expect(tiers).toHaveLength(4);
   });
-  it('GET /api/catalog — JSON с кэшем на CDN', async () => {
+  it('GET /api/catalog — JSON: кэш только на CDN, браузер всегда спрашивает свежее', async () => {
     setDb(await createTestDb());
     const res = await GET();
     expect(res.status).toBe(200);
-    expect(res.headers.get('cache-control')).toBe('public, s-maxage=15, stale-while-revalidate=60');
+    expect(res.headers.get('cdn-cache-control')).toBe('max-age=15, stale-while-revalidate=60');
+    expect(res.headers.get('cache-control')).toBe('public, max-age=0, must-revalidate');
     const data = await res.json();
     expect(data.cars).toHaveLength(9);
     expect(data.tiers[1]).toEqual({ minDays: 3, percent: 10 });
