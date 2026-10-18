@@ -50,7 +50,7 @@ export const requests = pgTable('requests', {
   status: text('status').notNull().default('new'),
   telegramSent: boolean('telegram_sent').notNull().default(false),
   assignedTo: integer('assigned_to').references(() => users.id),
-});
+}, (t) => [index('requests_car_dates_idx').on(t.carId, t.dateFrom)]);
 
 export const rateLimits = pgTable(
   'rate_limits',
@@ -120,4 +120,18 @@ export const priceChanges = pgTable(
     toValue: text('to_value'),
   },
   (t) => [index('price_changes_created_idx').on(t.createdAt)],
+);
+
+export const carBlocks = pgTable(
+  'car_blocks',
+  {
+    id: serial('id').primaryKey(),
+    carId: text('car_id').notNull().references(() => cars.id),
+    dateFrom: date('date_from').notNull(),
+    dateTo: date('date_to').notNull(),
+    reason: text('reason').notNull(),
+    createdBy: integer('created_by').notNull().references(() => users.id),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull(),
+  },
+  (t) => [index('car_blocks_car_idx').on(t.carId, t.dateFrom)],
 );
