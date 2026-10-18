@@ -4,6 +4,7 @@ import { cookies, headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 import type { ActionState } from '@/lib/admin/action-state';
 import { addNote, assignRequest, resendTelegram, setStatus, takeRequest, type ActionResult } from '@/lib/admin/requests';
+import { moveCar, saveTiers, setCarActive } from '@/lib/admin/fleet';
 import { changeOwnPassword, createManager, resetPassword, setActive } from '@/lib/admin/users';
 import { sendTelegram } from '@/lib/telegram';
 import { SESSION_COOKIE, sessionCookieOptions } from '@/lib/auth/cookie';
@@ -99,4 +100,32 @@ export async function setActiveAction(userId: number, active: boolean, _prev: Ac
   const res = await setActive(getDb(), owner, userId, active);
   revalidatePath('/admin/managers');
   return res.ok ? { ok: true } : { error: Object.values(res.errors)[0] };
+}
+
+function revalidateFleet() {
+  revalidatePath('/admin/cars', 'layout');
+  revalidatePath('/api/catalog');
+}
+
+export async function setCarActiveAction(id: string, active: boolean, _prev: ActionState, _fd: FormData): Promise<ActionState> {
+  const user = await requireUser();
+  const res = await setCarActive(getDb(), user, id, active, new Date());
+  revalidateFleet();
+  return res.ok ? { ok: true } : { error: res.error };
+}
+
+export async function moveCarAction(id: string, dir: -1 | 1, _prev: ActionState, _fd: FormData): Promise<ActionState> {
+  await requireUser();
+  await moveCar(getDb(), id, dir);
+  revalidateFleet();
+  return { ok: true };
+}
+
+export async function saveTiersAction(_prev: ActionState, fd: FormData): Promise<ActionState> {
+  const user = await requireUser();
+  const rows = [1, 2, 3, 4].map((i) => ({ minDays: str(fd, `minDays${i}`), percent: str(fd, `percent${i}`) }));
+  const res = await saveTiers(getDb(), user, rows, new Date());
+  revalidateFleet();
+  const values = Object.fromEntries(rows.flatMap((r, i) => [[`minDays${i + 1}`, r.minDays], [`percent${i + 1}`, r.percent]]));
+  return res.ok ? { ok: true } : { errors: res.errors, values };
 }

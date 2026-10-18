@@ -234,3 +234,32 @@ a.a-row:hover { background: var(--canvas-soft); }
 .a-table td { padding: 14px 16px; border-top: 1px solid var(--hairline-soft); vertical-align: middle; }
 .a-table__off td { opacity: .55; }
 .a-table .a-inline input { width: 200px; }
+
+/* ── Автопарк ──────────────────────────────── */
+.a-head .a-btn:first-of-type { margin-left: auto; }
+.a-btn--icon { width: 40px; padding: 0; font-size: 16px; }
+.a-fleet { display: grid; gap: 12px; margin: 0; padding: 0; list-style: none; }
+.a-fleet__item {
+  display: grid; grid-template-columns: 160px minmax(0, 1fr) auto; gap: 20px; align-items: center;
+  padding: 12px; border: 1px solid var(--hairline); border-radius: var(--r-md);
+}
+.a-fleet__item--off { background: var(--canvas-soft); }
+.a-fleet__item--off .a-fleet__img { opacity: .5; filter: grayscale(1); }
+.a-fleet__img { width: 160px; height: 100px; object-fit: cover; border-radius: var(--r-sm); background: var(--ink); }
+.a-fleet__body { display: grid; gap: 4px; }
+.a-fleet__body p { margin: 0; font-size: 14px; }
+.a-fleet__body .a-badge { justify-self: start; }
+.a-fleet__name { font-size: 18px; font-weight: 600; }
+.a-fleet__name:hover { text-decoration: underline; text-underline-offset: 3px; }
+.a-fleet__actions { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; }
+.a-tiers { max-width: 640px; }
+.a-tiers__hint { margin: -8px 0 16px; font-size: 14px; }
+.a-tiers__row { display: grid; gap: 4px; }
+.a-tiers__label { font-size: 13px; font-weight: 600; color: var(--muted); }
+.a-tiers__days, .a-tiers__pct { width: 80px; text-align: center; }
+@media (max-width: 767px) {
+  .a-head .a-btn:first-of-type { margin-left: 0; }
+  .a-fleet__item { grid-template-columns: 1fr; }
+  .a-fleet__img { width: 100%; height: 180px; }
+  .a-fleet__actions { justify-content: flex-start; }
+}
