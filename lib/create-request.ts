@@ -4,6 +4,7 @@ import type { AppDb } from '@/db/types';
 import { validateRequest } from './validation';
 import { quote } from './pricing';
 import { hashIp, checkRateLimit } from './rate-limit';
+import { getTiers } from './tiers';
 import { adminUrl, formatRequestMessage } from './telegram';
 
 export type CreateDeps = {
@@ -36,7 +37,7 @@ export async function createRequest(db: AppDb, body: unknown, deps: CreateDeps):
   if (!car) return { status: 400, errors: { carId: 'Этот автомобиль сейчас недоступен — выберите другой.' } };
 
   // Цена — только из базы; всё, что прислал браузер про деньги, игнорируется
-  const price = quote(car.pricePerDay, input.dateFrom, input.dateTo);
+  const price = quote(car.pricePerDay, input.dateFrom, input.dateTo, await getTiers(db));
   const [row] = await db
     .insert(requests)
     .values({ ...input, days: price.days, dayRate: price.dayRate, total: price.total, deposit: car.deposit })

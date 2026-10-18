@@ -14,6 +14,10 @@ export const cars = pgTable('cars', {
   deposit: integer('deposit').notNull(),
   active: boolean('active').notNull().default(true),
   sortOrder: integer('sort_order').notNull().default(0),
+  photoUrl: text('photo_url').notNull().default(''),
+  photoAlt: text('photo_alt').notNull().default(''),
+  photoPos: text('photo_pos').notNull().default('50% 60%'),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
 });
 
 export const users = pgTable('users', {
@@ -92,4 +96,28 @@ export const loginAttempts = pgTable(
     createdAt: timestamp('created_at', { withTimezone: true }).notNull(),
   },
   (t) => [index('login_attempts_key_created_idx').on(t.key, t.createdAt)],
+);
+
+export const discountTiers = pgTable('discount_tiers', {
+  position: integer('position').primaryKey(), // 1–4
+  minDays: integer('min_days').notNull(),
+  percent: integer('percent').notNull(),
+});
+
+export const PRICE_CHANGE_KINDS = ['price', 'deposit', 'tier_percent', 'tier_days', 'created', 'hidden', 'shown'] as const;
+export type PriceChangeKind = (typeof PRICE_CHANGE_KINDS)[number];
+
+export const priceChanges = pgTable(
+  'price_changes',
+  {
+    id: serial('id').primaryKey(),
+    userId: integer('user_id').notNull().references(() => users.id),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull(),
+    carId: text('car_id').references(() => cars.id),
+    kind: text('kind', { enum: PRICE_CHANGE_KINDS }).notNull(),
+    tier: integer('tier'),
+    fromValue: text('from_value'),
+    toValue: text('to_value'),
+  },
+  (t) => [index('price_changes_created_idx').on(t.createdAt)],
 );

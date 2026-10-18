@@ -1,12 +1,12 @@
-// 9 машин каталога — значения 1:1 из CARS в public/script.js
+// 9 машин каталога — значения 1:1 из CARS в public/script.js; фото — 1:1 с миграцией 0002
 export const CAR_SEED = [
-  { id: 'gt3rs', name: 'Porsche 911 GT3 RS', category: 'sport', powerHp: 500, accel0100: '3,3', seats: 2, pricePerDay: 95000, deposit: 300000 },
-  { id: 'ferrari-roma', name: 'Ferrari Roma', category: 'sport', powerHp: 620, accel0100: '3,4', seats: 4, pricePerDay: 120000, deposit: 300000 },
-  { id: 'huracan', name: 'Lamborghini Huracán EVO', category: 'sport', powerHp: 640, accel0100: '2,9', seats: 2, pricePerDay: 150000, deposit: 300000 },
-  { id: 'g63', name: 'Mercedes-AMG G 63', category: 'suv', powerHp: 585, accel0100: '4,5', seats: 5, pricePerDay: 65000, deposit: 150000 },
-  { id: 'urus', name: 'Lamborghini Urus', category: 'suv', powerHp: 650, accel0100: '3,6', seats: 5, pricePerDay: 110000, deposit: 300000 },
-  { id: 'range-rover', name: 'Range Rover', category: 'suv', powerHp: 530, accel0100: '4,6', seats: 5, pricePerDay: 45000, deposit: 100000 },
-  { id: 's63', name: 'Mercedes-AMG S 63', category: 'business', powerHp: 612, accel0100: '3,5', seats: 5, pricePerDay: 50000, deposit: 100000 },
-  { id: 'm5', name: 'BMW M5 Competition', category: 'business', powerHp: 625, accel0100: '3,3', seats: 5, pricePerDay: 40000, deposit: 100000 },
-  { id: 'bentley', name: 'Bentley Continental GT', category: 'business', powerHp: 550, accel0100: '4,0', seats: 4, pricePerDay: 85000, deposit: 200000 },
+  { id: 'gt3rs', name: 'Porsche 911 GT3 RS', category: 'sport', powerHp: 500, accel0100: '3,3', seats: 2, pricePerDay: 95000, deposit: 300000, photoUrl: 'https://images.unsplash.com/photo-1580274455191-1c62238fa333?auto=format&fit=crop&w=900&q=80', photoPos: '50% 52%', photoAlt: 'Матово-чёрный Porsche 911 GT3 RS на набережной на закате' },
+  { id: 'ferrari-roma', name: 'Ferrari Roma', category: 'sport', powerHp: 620, accel0100: '3,4', seats: 4, pricePerDay: 120000, deposit: 300000, photoUrl: 'https://cdn.gamma.app/bqylkkqzpmrgkk7/design-anything/ssVBmKe1Rtbzk08WVEUQD/UDahfs1fTqskaxKOek1OQ.jpg', photoPos: '50% 58%', photoAlt: 'Чёрная Ferrari Roma в профиль в тёмной студии' },
+  { id: 'huracan', name: 'Lamborghini Huracán EVO', category: 'sport', powerHp: 640, accel0100: '2,9', seats: 2, pricePerDay: 150000, deposit: 300000, photoUrl: 'https://images.unsplash.com/photo-1657217674164-9cbf85acfc6d?auto=format&fit=crop&w=900&q=80', photoPos: '50% 60%', photoAlt: 'Серая Lamborghini Huracán, вид спереди' },
+  { id: 'g63', name: 'Mercedes-AMG G 63', category: 'suv', powerHp: 585, accel0100: '4,5', seats: 5, pricePerDay: 65000, deposit: 150000, photoUrl: 'https://images.unsplash.com/photo-1756704756051-9aa48231c440?auto=format&fit=crop&w=900&q=80', photoPos: '50% 70%', photoAlt: 'Чёрный Mercedes-AMG G 63 у серых ворот' },
+  { id: 'urus', name: 'Lamborghini Urus', category: 'suv', powerHp: 650, accel0100: '3,6', seats: 5, pricePerDay: 110000, deposit: 300000, photoUrl: 'https://images.unsplash.com/photo-1748189285388-c8852b6a7ed6?auto=format&fit=crop&w=900&q=80', photoPos: '50% 65%', photoAlt: 'Чёрный Lamborghini Urus на городской улице' },
+  { id: 'range-rover', name: 'Range Rover', category: 'suv', powerHp: 530, accel0100: '4,6', seats: 5, pricePerDay: 45000, deposit: 100000, photoUrl: 'https://images.unsplash.com/photo-1767274592417-c986b7619c8c?auto=format&fit=crop&w=900&q=80', photoPos: '50% 65%', photoAlt: 'Белый Range Rover на мощёной площадке' },
+  { id: 's63', name: 'Mercedes-AMG S 63', category: 'business', powerHp: 612, accel0100: '3,5', seats: 5, pricePerDay: 50000, deposit: 100000, photoUrl: 'https://images.unsplash.com/photo-1619221496652-7ee3d7406203?auto=format&fit=crop&w=900&q=80', photoPos: '55% 70%', photoAlt: 'Чёрный Mercedes-AMG S 63 у кирпичного фасада вечером' },
+  { id: 'm5', name: 'BMW M5 Competition', category: 'business', powerHp: 625, accel0100: '3,3', seats: 5, pricePerDay: 40000, deposit: 100000, photoUrl: 'https://images.unsplash.com/photo-1729966085578-c7b281cf11da?auto=format&fit=crop&w=900&q=80', photoPos: '60% 65%', photoAlt: 'Белый BMW M5 в бетонном паркинге' },
+  { id: 'bentley', name: 'Bentley Continental GT', category: 'business', powerHp: 550, accel0100: '4,0', seats: 4, pricePerDay: 85000, deposit: 200000, photoUrl: 'https://images.unsplash.com/photo-1471289549423-04adaecfa1f1?auto=format&fit=crop&w=900&q=80', photoPos: '40% 60%', photoAlt: 'Синий Bentley Continental GT, вид спереди' },
 ] as const;

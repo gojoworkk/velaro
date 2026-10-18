@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { eq } from 'drizzle-orm';
 import { createRequest, type CreateDeps } from '@/lib/create-request';
-import { cars, requests } from '@/db/schema';
+import { cars, discountTiers, requests } from '@/db/schema';
 import { createTestDb } from './helpers/test-db';
 
 const body = {
@@ -61,6 +61,13 @@ describe('createRequest', () => {
     const d = deps({ siteUrl: 'https://velaro.test' });
     await createRequest(db, body, d);
     expect(d.notify).toHaveBeenCalledWith(expect.stringContaining('href="https://velaro.test/admin/requests/1"'));
+  });
+  it('скидка за срок берётся из базы', async () => {
+    const db = await createTestDb();
+    await db.update(discountTiers).set({ percent: 50 }).where(eq(discountTiers.position, 3)); // от 7 суток
+    await createRequest(db, body, deps());
+    const [row] = await db.select().from(requests);
+    expect(row).toMatchObject({ days: 7, dayRate: 75000, total: 525000 });
   });
   it('notify бросает — заявка всё равно сохранена', async () => {
     const db = await createTestDb();
