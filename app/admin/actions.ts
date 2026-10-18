@@ -4,7 +4,8 @@ import { cookies, headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 import type { ActionState } from '@/lib/admin/action-state';
 import { addNote, assignRequest, resendTelegram, setStatus, takeRequest, type ActionResult } from '@/lib/admin/requests';
-import { moveCar, saveTiers, setCarActive } from '@/lib/admin/fleet';
+import { createCar, moveCar, nextCarId, saveTiers, setCarActive, updateCar, validateCar } from '@/lib/admin/fleet';
+import { getPhotoStore, photoError, photoName, type PhotoStore } from '@/lib/photo-store';
 import { changeOwnPassword, createManager, resetPassword, setActive } from '@/lib/admin/users';
 import { sendTelegram } from '@/lib/telegram';
 import { SESSION_COOKIE, sessionCookieOptions } from '@/lib/auth/cookie';
@@ -128,4 +129,60 @@ export async function saveTiersAction(_prev: ActionState, fd: FormData): Promise
   revalidateFleet();
   const values = Object.fromEntries(rows.flatMap((r, i) => [[`minDays${i + 1}`, r.minDays], [`percent${i + 1}`, r.percent]]));
   return res.ok ? { ok: true } : { errors: res.errors, values };
+}
+
+const CAR_FIELDS = ['name', 'category', 'powerHp', 'accel0100', 'seats', 'pricePerDay', 'deposit', 'photoAlt', 'photoPos'] as const;
+const NO_STORE = 'Не подключено хранилище фото (Vercel Blob). Без нового фото остальные поля сохранить можно.';
+
+function readCarForm(fd: FormData) {
+  const values = Object.fromEntries(CAR_FIELDS.map((k) => [k, str(fd, k)])) as Record<string, string>;
+  const file = fd.get('photo');
+  const photo = file instanceof File && file.size > 0 ? file : null;
+  return { values, photo, check: validateCar({ ...values, active: fd.get('active') ?? undefined }) };
+}
+
+function photoStoreOrNull(): PhotoStore | null {
+  try {
+    return getPhotoStore();
+  } catch {
+    return null;
+  }
+}
+
+export async function createCarAction(_prev: ActionState, fd: FormData): Promise<ActionState> {
+  const user = await requireUser();
+  const { values, photo, check } = readCarForm(fd);
+  const errors: Record<string, string> = { ...(check.ok ? {} : check.errors) };
+  const pErr = photoError(photo);
+  if (pErr) errors.photo = pErr;
+  if (!check.ok || pErr || !photo) return { errors, values };
+  const store = photoStoreOrNull();
+  if (!store) return { error: NO_STORE, values };
+  const db = getDb();
+  const id = await nextCarId(db, check.data.name);
+  const url = await store.put(photoName(id, photo.type), Buffer.from(await photo.arrayBuffer()), photo.type);
+  await createCar(db, user, id, check.data, url, new Date());
+  revalidateFleet();
+  redirect('/admin/cars');
+}
+
+export async function updateCarAction(id: string, _prev: ActionState, fd: FormData): Promise<ActionState> {
+  const user = await requireUser();
+  const { values, photo, check } = readCarForm(fd);
+  const errors: Record<string, string> = { ...(check.ok ? {} : check.errors) };
+  const pErr = photo ? photoError(photo) : null;
+  if (pErr) errors.photo = pErr;
+  if (!check.ok || pErr) return { errors, values };
+  let url: string | null = null;
+  let store: PhotoStore | null = null;
+  if (photo) {
+    store = photoStoreOrNull();
+    if (!store) return { error: NO_STORE, values };
+    url = await store.put(photoName(id, photo.type), Buffer.from(await photo.arrayBuffer()), photo.type);
+  }
+  const res = await updateCar(getDb(), user, id, check.data, url, new Date());
+  if (!res.ok) return { error: res.error, values };
+  if (store && res.oldPhotoUrl) await store.remove(res.oldPhotoUrl);
+  revalidateFleet();
+  redirect('/admin/cars');
 }

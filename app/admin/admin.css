@@ -263,3 +263,18 @@ a.a-row:hover { background: var(--canvas-soft); }
   .a-fleet__img { width: 100%; height: 180px; }
   .a-fleet__actions { justify-content: flex-start; }
 }
+
+/* ── Форма машины ──────────────────────────── */
+.a-carform { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); gap: 32px; align-items: start; }
+.a-carform__photo, .a-carform__fields { display: grid; gap: 16px; }
+.a-carform__preview {
+  display: grid; place-items: center; aspect-ratio: 16 / 10; overflow: hidden;
+  border-radius: var(--r-md); background: var(--ink); color: var(--faint); font-size: 14px;
+}
+.a-carform__preview img { width: 100%; height: 100%; object-fit: cover; }
+.a-carform__hint { margin: -8px 0 0; font-size: 13px; }
+.a-carform__row { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 16px; }
+.a-field input[type="file"] { height: auto; padding: 12px 14px; }
+.a-check { display: inline-flex; align-items: center; gap: 10px; font-size: 15px; font-weight: 600; cursor: pointer; }
+.a-check input { width: 20px; height: 20px; accent-color: var(--ink); }
+@media (max-width: 900px) { .a-carform { grid-template-columns: 1fr; } }
