@@ -7,7 +7,8 @@
     { id: 'gt3rs', name: 'Porsche 911 GT3 RS', cat: 'sport', power: 500, accel: '3,3', seats: 2, price: 95000, deposit: 300000,
       img: 'photo-1580274455191-1c62238fa333', pos: '50% 52%', alt: 'Матово-чёрный Porsche 911 GT3 RS на набережной на закате' },
     { id: 'ferrari-roma', name: 'Ferrari Roma', cat: 'sport', power: 620, accel: '3,4', seats: 4, price: 120000, deposit: 300000,
-      img: 'photo-1645028875875-d3611dc96fe0', pos: '45% 70%', alt: 'Оранжевая Ferrari Roma на подиуме шоурума' },
+      img: 'https://cdn.gamma.app/bqylkkqzpmrgkk7/design-anything/ssVBmKe1Rtbzk08WVEUQD/UDahfs1fTqskaxKOek1OQ.jpg',
+      pos: '50% 58%', alt: 'Чёрная Ferrari Roma в профиль в тёмной студии' },
     { id: 'huracan', name: 'Lamborghini Huracán EVO', cat: 'sport', power: 640, accel: '2,9', seats: 2, price: 150000, deposit: 300000,
       img: 'photo-1657217674164-9cbf85acfc6d', pos: '50% 60%', alt: 'Серая Lamborghini Huracán, вид спереди' },
     { id: 'g63', name: 'Mercedes-AMG G 63', cat: 'suv', power: 585, accel: '4,5', seats: 5, price: 65000, deposit: 150000,
@@ -40,7 +41,8 @@
   const numberFmt = new Intl.NumberFormat('ru-RU');
   const rub = (n) => `${numberFmt.format(n)} ₽`;
   const dayMonth = new Intl.DateTimeFormat('ru-RU', { day: 'numeric', month: 'long' });
-  const imgUrl = (id, w) => `https://images.unsplash.com/${id}?auto=format&fit=crop&w=${w}&q=80`;
+  // Unsplash — по id снимка; полный адрес (свои кадры) используется как есть
+  const imgUrl = (id, w) => id.startsWith('https://') ? id : `https://images.unsplash.com/${id}?auto=format&fit=crop&w=${w}&q=80`;
   const byId = (id) => CARS.find((c) => c.id === id);
 
   const plural = (n, one, few, many) => {
